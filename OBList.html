@@ -1,0 +1,204 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookings</title>
+    <link href="Content/font-awesome.css" rel="stylesheet">
+    <!--load all styles -->
+    <link href="Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="Content/Site.css?version=3" rel="stylesheet" type="text/css" />
+    <script src="Scripts/modernizr-2.6.2.js"></script>
+    <link rel="shortcut icon" href="https://aclmedia.azureedge.net/cmsmedia/libraries/acl/images/favicon/favicon.png" type="image/x-icon" />
+    <script src="Scripts/angular.js"></script>
+    <script src="Scripts/OBList.js?version=4"></script>
+    <script src="Scripts/OnboardBooking.js?version=4"></script>
+    <script src="Scripts/angular-material.min.js"></script>
+    <script src="Scripts/angular-animate.min.js"></script>
+    <script src="Scripts/angular-aria.min.js"></script>
+    <script src="Scripts/checklist-model.js"></script>
+    <script src="Scripts/xml2json.js"></script>
+    <link rel="stylesheet" href="Content/angular-material.css" />
+
+
+    <script src="Scripts/angular-busy.js"></script>
+
+    <link href="Content/angular-busy.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body ng-app="OnboardBookingApp" ng-controller="OnboardBookingCtrl">
+    <div id="header_wrapper">
+        <header id="header" class="navbar-static-top">
+            <div class="topnav">
+            </div>
+            <div class="main-header">
+                <div class="container">
+                    <div class="logo navbar-brand">
+                        <a href="https://americancruiselines.com" title="ACL - home" target="_blank">
+                            <img src="https://aclmedia.azureedge.net/cmsmedia/libraries/acl/images/style-assets/original-site/logos/logo.png" alt="American Cruiselines">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </div>
+    <div class="container mainbody piecepage">
+        <div class="row maintenance" ng-show="maintenanceFlag == true">
+            <h3>{{maintenanceMsg}}</h3>
+        </div>
+
+        <div ng-show="maintenanceFlag == false">
+            <div  ng-init="GetAllData();" class="divList">
+                <div class="messagespace text-center" ng-show="invalidbooking == 'True' && BookingSubmitted == 'False'">
+                    <h3 class="">This process must be started in the Shorex Application or in the Online Shorex Application</h3>
+                </div>
+                <div class="messagespace text-center" ng-show="BookingSubmitted == 'True' && invalidbooking == 'False'">
+                    <h3 class="">Thank you for submitting your Booking. <br /> </h3>
+                    <div class="text-center">
+                        <br /><br />
+                        <div class="col-md-4 col-md-offset-4">
+                            <button ng-click="clearEmpty();" id="btnSave" class="btn btn-primary btn-sm">Close Tab</button>
+
+
+                        </div>
+                    </div>
+                </div>
+                <!--<div>
+                    <form name ="invoiceform" id="IN" method="post" action="http://54.82.98.26/displayDoc.php" target="_blank" enctype="multipart/form-data">
+                            <input id="invoicebinary" type="hidden" name="pdf" value={{invoiceImage}}>
+                                <button id="btninvoice" type="submit" form="IN" name="submit" value="Submit" class="btn btn-primary btn-lg">View Invoice</button>
+                    
+                    </form>
+                </div>-->
+                <div class="divList" ng-show="invalidbooking == 'False' && BookingSubmitted == 'False'">
+
+
+                    <div>
+                        <h3 class="text-center"> Onboard Rebooking List</h3>
+                        <div class="passengersearch row">
+
+                            <label class="col-sm-3">Search by name: </label><span class="col-sm-6"><input ng-model="searchText"></span>
+
+                            <div cg-busy="CruiseManagePromise"></div>
+                        </div>
+                       
+                        <div class="tentativelist row">
+                            <div class="form-group">
+                                <div class="divList guesttable">
+                                    <table class="table">
+                                        <thead>
+
+                                            <tr class="">
+                                                <th class="col-header1 roomheader hidden">BookingID</th>
+                                               
+                                                <th class="col-header1 roomheader"><div><span>Guest Names</span></div></th>
+                                                <th class="col-header2 nameheader"><div><span>Ship</span></div></th>
+                                                <th class="col-header2 nameheader"><div><span>Departure Date</span></div></th>
+                                                <th class="col-header2 nameheader"><div><span>Category</span></div></th>
+                                                <th class="col-header2 nameheader"><div><span>Room</span></div></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+
+                                            </tr>
+                                        </thead>
+
+                                        <tbody class="">
+
+                                           
+                                            <tr class="borderbot" ng-repeat="tentative in CombinedTentativeList | filter:{CombinedName:searchText} track by tentative.NewBookingID">
+                                                 <td>{{tentative.CombinedName}}</td>
+                                               
+                                                <td>{{tentative.FacilityName}}</td>
+                                                <td>{{tentative.DepartureDate | date:"MMM dd, yyyy"}}</td>
+                                                <td>{{tentative.CategoryCode}}</td>
+                                                <td>{{tentative.UnitCode}}</td>
+
+                                                <td>
+                                                    <button ng-show="tentative.PaymentStatus=='Tentative'" id="btnSave" type="button" class="btn btn-primary btn-sm btn-padd" value="Update" ng-click="displayInvoice(tentative.NewBookingID);">View Tentative</button>
+                                                    <button ng-show="tentative.PaymentStatus=='Paid'" id="btnSave" type="button" class="btn btn-primary btn-sm btn-padd" value="Update" ng-click="displayInvoice(tentative.NewBookingID);">View Receipt</button>
+
+                                                </td>
+                                                <td>
+                                                    <button ng-show="tentative.PaymentStatus=='Tentative'" id="btnSave" type="button" class="btn btn-primary btn-sm btn-padd" value="Update" ng-click="emailInvoice(tentative.NewBookingID,'Invoice');">Email Tentative</button>
+                                                    <button ng-show="tentative.PaymentStatus=='Paid'" id="btnSave" type="button" class="btn btn-primary btn-sm btn-padd" value="Update" ng-click="emailInvoice(tentative.NewBookingID,'Receipt');">Email Receipt</button>
+
+                                                </td>
+                                                <td>
+                                                    <button ng-show="tentative.PaymentStatus=='Tentative'" id="btnSave" type="button" class="btn btn-primary btn-sm btn-padd" value="Update" ng-click="MakeFinalBooking(tentative.rowindex);">Confirm Booking</button>
+                                                </td>
+
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+
+                        </div>
+                        <div cg-busy="SyncPromise"></div>
+                        <div ng-show="listready=='False'">
+                            <div class="cg-busy-default-wrapper">
+                                <div class="cg-busy-default-sign">
+                                    <div class="cg-busy-default-spinner">
+                                        <div class="bar1"></div>
+                                        <div class="bar2"></div>
+                                        <div class="bar3"></div>
+                                        <div class="bar4"></div>
+                                        <div class="bar5"></div>
+                                        <div class="bar6"></div>
+                                        <div class="bar7"></div>
+                                        <div class="bar8"></div>
+                                        <div class="bar9"></div>
+                                        <div class="bar10"></div>
+                                        <div class="bar11"></div>
+                                        <div class="bar12"></div>
+                                    </div>
+                                    <div class="cg-busy-default-text">Please Wait...</div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                       
+                     
+                     
+                      
+
+                   
+                </div>
+                    </div>
+            </div>
+        </div>
+            </div>
+</div>
+
+    <div id="footer_wrapper">
+        <footer id="footer">
+            <div class="footer-wrapper">
+                <div class="call-us">
+                    <span class="heading">If you have any questions, please email</span>
+                    <a href="mailto:customerservice@americancruiselines.com"> <span class="contact-phone" style="color:white">customerservice@americancruiselines.com</span></a>
+                </div>
+                <div class="container">
+                    <div class="footer">
+                        <div class="inner clearfix">
+                            <div class="subfooter clearfix">
+                                <div class="pull-right">
+                                    <a href="#" id="back-to-top" style="display: inline;"><i class="soap-icon-longarrow-up circle"></i></a>
+                                </div>
+                                <div class="copyright">
+                                    <p>© Copyright <span id="copyright_year"><script>document.write(new Date().getFullYear())</script></span> American Cruise Lines. All rights reserved.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="Scripts/jquery-1.10.2.min.js"></script>
+    <script src="Scripts/bootstrap.min.js"></script>
+</body>
+</html>

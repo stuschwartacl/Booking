@@ -1,0 +1,287 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onboard Booking</title>
+    <link href="Content/font-awesome.css" rel="stylesheet">
+    <!--load all styles -->
+    <link href="Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="Content/Site.css?version=3" rel="stylesheet" type="text/css" />
+    <script src="Scripts/modernizr-2.6.2.js"></script>
+   <link rel="shortcut icon" href="https://aclmedia.azureedge.net/cmsmedia/libraries/acl/images/favicon/favicon.png" type="image/x-icon" />
+    <script src="Scripts/angular.js"></script>
+    <script src="Scripts/OBStart.js?version=4"></script>
+    <script src="Scripts/OnboardBooking.js?version=3"></script>
+    <script src="Scripts/angular-cookies.js"></script>
+    <script src="Scripts/angular-material.min.js"></script>
+    <script src="Scripts/angular-animate.min.js"></script>
+    <script src="Scripts/angular-aria.min.js"></script>
+    <script src="Scripts/checklist-model.js"></script>
+    <script src="Scripts/xml2json.js"></script>
+    <link rel="stylesheet" href="Content/angular-material.css" />
+
+
+    <script src="Scripts/angular-busy.js"></script>
+
+    <link href="Content/angular-busy.css" rel="stylesheet" type="text/css" />
+    <!--<script type="text/javascript"
+            src="https://jstest.authorize.net/v1/Accept.js"
+            charset="utf-8">
+    </script>-->
+</head>
+<body ng-app="OnboardBookingApp">
+    <div id="header_wrapper">
+        <header id="header" class="navbar-static-top">
+            <div class="topnav">
+            </div>
+            <div class="main-header">
+                <div class="container">
+                    <div class="logo navbar-brand">
+                        <a href="https://americancruiselines.com" title="ACL - home" target="_blank">
+                            <img src="https://aclmedia.azureedge.net/cmsmedia/libraries/acl/images/style-assets/original-site/logos/logo.png" alt="American Cruiselines">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </div>
+    <div ng-controller="OnboardBookingCtrl" class="container mainbody piecepage">
+        <div class="row maintenance" ng-show="maintenanceFlag == true">
+            <h3>{{maintenanceMsg}}</h3>
+        </div>
+        
+        <div ng-show="maintenanceFlag == false">
+          
+            <div class="divList" ng-init="NeedAuthentication()">
+                             
+                    <div class=".messagespacelogin  text-center" ng-show="validuser == false || NeedAuthentication==true">
+                        <h3 class="">Onboard Rebooking<br />Please use your office login and password to begin</h3>
+                    </div>
+                    <form name="loginform" novalidate  ng-show="validuser == false || NeedAuthentication==true">
+
+                        <div class="form-horizontal">
+
+                            <div class="row logininfo">
+                                <div class="row justify-content-md-center">
+                                    <div class="col-sm-4 col-sm-offset-4">
+                                        <div class="form-group">
+                                            <label for="text" class="control-label">Login<span class="reqasterisk"><strong>*</strong></span></label>
+                                            <div>
+                                                <input type="text" class="" data-ng-model="loginid" required />
+
+
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row justify-content-md-center">
+                                    <div class="col-sm-4 col-sm-offset-4">
+                                        <div class="form-group">
+                                            <label for="text" class="control-label">Password<span class="reqasterisk"><strong>*</strong></span></label>
+                                            <div>
+                                                <input type="password" class="" data-ng-model="loginpw" required />
+
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row justify-content-md-center">
+                                    <div class="col-sm-4 col-sm-offset-4 bntcenter">
+                                        <div class="form-group">
+                                            <div>
+                                                <button ng-disabled="loginform.$invalid" class="viewbtns btn btn-primary " ng-click="validateUser()">Login</button>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row clearfix">
+                                <div class="col-md-6">
+                                    <span class="errormsg" ng-show="validuser ==false && IDtried == true && errorcode==1">Invalid Login and/or Password combination</span>
+                                    <span class="errormsg" ng-show="validuser ==false && IDtried == true && (errorcode==2 || errorcode==3 || errorcode==4)">Invalid Login - Your account may be locked, please contact IT Support via text or phone at 415-221-0690</span>
+                                    <span class="errormsg" ng-show="validuser ==false && IDtried == true && (errorcode==7)">Your account may be locked, please contact IT Support via text or phone at 415-221-0690</span>
+                                    <span class="errormsg" ng-show="validuser ==false && IDtried == true && (errorcode==5 || errorcode==6) ">There was a problem validating your Login - Please try again or contact IT Support via text or phone at 415-221-0690</span>
+                                    <span class="errormsg" ng-show="validuser ==false && IDtried == true && (errorcode==8) ">There was a problem validating your Login - Your account may not have appropriate access to this function.  Please contact IT Support via text or phone at 415-221-0690</span>
+
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+                    <div class="divList" ng-show="validuser == true">
+                        <div class="shipselection">
+                            <div class="form-group">
+                                <div class="divList">
+                                    <div cg-busy="SyncPromise"></div>
+                                    <div ng-show="listready=='False'">
+                                        <div class="cg-busy-default-wrapper">
+                                            <div class="cg-busy-default-sign">
+                                                <div class="cg-busy-default-spinner">
+                                                    <div class="bar1"></div>
+                                                    <div class="bar2"></div>
+                                                    <div class="bar3"></div>
+                                                    <div class="bar4"></div>
+                                                    <div class="bar5"></div>
+                                                    <div class="bar6"></div>
+                                                    <div class="bar7"></div>
+                                                    <div class="bar8"></div>
+                                                    <div class="bar9"></div>
+                                                    <div class="bar10"></div>
+                                                    <div class="bar11"></div>
+                                                    <div class="bar12"></div>
+                                                </div>
+                                                <div class="cg-busy-default-text">Please Wait...</div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <label for="cruisenum" class="col-sm-2 selectcruise control-label">Select a Ship<span class="reqasterisk"><strong>*</strong></span></label>
+                                    <div class="selectdiv col-sm-3 ddlbpad">
+                                        <select required data-ng-model="selShipCode" data-ng-options="i.Code as i.Name for i in Ships" ng-change="clearchecks(); checked = 0;">
+                                            <option value="">-- Select A Ship --</option>
+                                        </select>
+
+                                    </div>
+                                    <div class="selectdiv col-sm-3">
+                                        <button ng-click="addnewdiv=true;GetAllCurrentPassengers();" ng-disabled="selShipCode==undefined" class="btn btn-primary btn-sm">Retrieve Cruise Manifest</button>
+                                    </div>
+                                    <div class="selectdiv col-sm-2">
+                                        <button ng-click="addnewdiv=true;GetCurrentCruiseBookings();" ng-disabled="selShipCode==undefined" class="btn btn-primary btn-sm">Retrieve Bookings</button>
+                                    </div>
+                                    <div class="selectdiv col-sm-2">
+                                        <div class="row justify-content-xs-center ">
+                                            <form action="pdfserver.php" method="POST" target="_blank">
+
+                                                <input type="submit" class="link-button" value="Fleet Sheet">
+                                                <input type="text" class="hideitem" name="pdf" value="ACL_Fleet-Sheet" />
+                                                <input type="text" class="hideitem" name="allowaccess" value="true" />
+                                            </form>
+
+
+
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <div class="divList" ng-show="addnewdiv==true">
+                            <form confirm-on-exit name="OnboardForm" novalidate">
+                                <div class="row instructionarea">
+                                    </div>
+                                    <div class="row instructionarea">
+
+                                        <h4 class="col-sm-10">Select one or more guests to be included in a new booking</h4>
+
+
+                                    </div>
+                                    <div class="passengersearch row instructionarea">
+
+                                        <label class="col-sm-3">Search by room or name: </label><span class="col-sm-6"><input ng-model="searchText" ng-change="clearchecks(); checked = 0;"></span>
+
+                                        <div cg-busy="CruiseManagePromise"></div>
+                                    </div>
+                                    <div class="form-group row">
+                                    </div>
+                                    <div class="form-group row btnarea">
+
+                                        <div>
+
+
+                                            <button ng-click="Rebook()" id="btnrebook" value="Submit" class="col-md-3 col-md-offset-3 btn btn-primary btn-sm" ng-disabled="OnboardForm.$invalid || checked==0">Rebook</button>
+
+                                            <button ng-click="clear()" id="btnPrimary" class="col-md-3 btn btn-primary btn-sm">Clear</button>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="guestlist row">
+                                        <div class="form-group">
+                                            <div class="divList guesttable">
+                                                <table class="table">
+                                                    <thead>
+
+                                                        <tr class="">
+                                                            <th class="col-header1 roomheader">Select</th>
+                                                            <!-- First column header is not rotated-->
+                                                            <!-- <th class="prices col-header1"><div><span>Booking #</span></div></th>-->
+                                                            <th class="col-header1 roomheader"><div><span>Room #</span></div></th>
+                                                            <th class="col-header2 nameheader"><div><span>Guest Name</span></div></th>
+
+
+
+                                                        </tr>
+                                                    </thead>
+
+                                                    <tbody class="">
+
+                                                        <tr ng-repeat="PAXitems in PAXList | guestfilter:searchText">
+
+                                                            <td><input class="row-header col-header1 roomheader" name="" type="checkbox" ng-model="PAXitems.RebookSelected" ng-true-value=1 ng-false-value="0" ng-change="checkChanged(PAXList[$index])" ng-disabled="checked==2 && !PAXList[$index].RebookSelected"></td>
+
+                                                            <th class="row-header col-header1 roomheader">{{PAXitems.unino}}</th>
+                                                            <th class="row-header col-header2 nameheader">{{PAXitems.FullName}}</th>
+
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>
+
+                                            </div>
+                                        </div>
+
+
+
+
+                                    </div>
+
+
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            <!--</div>-->
+</div>
+
+    <div id="footer_wrapper">
+        <footer id="footer">
+            <div class="footer-wrapper">
+                <div class="call-us">
+                    <span class="heading">If you have any questions, please email</span>
+                    <a href="mailto:customerservice@americancruiselines.com"> <span class="contact-phone" style="color:white">customerservice@americancruiselines.com</span></a>
+                </div>
+                <div class="container">
+                    <div class="footer">
+                        <div class="inner clearfix">
+                            <div class="subfooter clearfix">
+                                <div class="pull-right">
+                                    <a href="#" id="back-to-top" style="display: inline;"><i class="soap-icon-longarrow-up circle"></i></a>
+                                </div>
+                                <div class="copyright">
+                                    <p>© Copyright <span id="copyright_year"><script>document.write(new Date().getFullYear())</script></span> American Cruise Lines. All rights reserved.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="Scripts/jquery-1.10.2.min.js"></script>
+    <script src="Scripts/bootstrap.min.js"></script>
+</body>
+</html>

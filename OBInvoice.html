@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .overlay {
+            display: none;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 999;
+            background: rgba(255,255,255,0.8) url("loader.gif") center no-repeat;
+        }
+        /* Turn off scrollbar when body element has the loading class */
+        body.loading {
+            overflow: hidden;
+        }
+            /* Make spinner image visible when body element has the loading class */
+            body.loading .overlay {
+                display: block;
+            }
+    </style>
+    <script src="Scripts/jquery-1.10.2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            load();
+        });
+     
+        $.urlParam = function (name) {
+            var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+            if (results == null) {
+                return null;
+            }
+            return decodeURI(results[1]) || 0;
+        }
+        function load() {
+          
+            $("body").addClass("loading");
+            params = {}
+            params.bookingId = $.urlParam('bookingID');
+            
+            params.LatestInvoiceInd = "1";
+            //params.invoiceId = $.urlParam('invoiceID');
+            $.ajax({
+                type: "POST",
+                datatype: "json",
+                contentType: "application/json; charset=utf-8",
+                url: "https://auth.americancruiselines.com/proxy?redirect=https://aclbussvcdev.americancruiselines.com/acl_business_services/" + "GetReceiptImage",
+                data: JSON.stringify(params),
+                success: function (result) {
+                    var jsonStr = jQuery.parseJSON(result);
+                    pdffile = jsonStr.GetReceiptImage.Booking.InvoiceList[0].InvoiceImage;
+                    
+                    $("#invoicebinary").val(pdffile);
+                    $("#btninvoice").click();
+                   
+                    $("body").removeClass("loading");
+                },
+                error: function (err) {
+                    // check the err for error details
+                }
+            });
+        }
+    </script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onboard Booking </title>
+   
+
+</head>
+<body>
+    <div class="overlay"></div>
+                <div hidden>
+                    <form name ="invoiceform" id="IN" method="post" action="/displayDoc.php"  enctype="multipart/form-data">
+                            <input id="invoicebinary" type="hidden" name="pdf" value="">
+                                <button id="btninvoice" type="submit" form="IN" name="submit" value="Submit" class="btn btn-primary btn-lg">View Invoice</button>
+                    
+                    </form>
+                </div>
+ 
+</body>
+</html>

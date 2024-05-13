@@ -1,0 +1,1376 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onboard Booking</title>
+    <link href="Content/font-awesome.css" rel="stylesheet">
+    <!--load all styles -->
+    <link href="Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="Content/Site.css?version=3" rel="stylesheet" type="text/css" />
+    <script src="Scripts/modernizr-2.6.2.js"></script>
+    <link rel="shortcut icon" href="https://aclmedia.azureedge.net/cmsmedia/libraries/acl/images/favicon/favicon.png"
+        type="image/x-icon" />
+    <script src="Scripts/angular.js"></script>
+    <script src="Scripts/OBSelect.js?version=7"></script>
+    <script src="Scripts/OnboardBooking.js?version=4"></script>
+    <script src="Scripts/angular-material.min.js"></script>
+    <script src="Scripts/angular-animate.min.js"></script>
+    <script src="Scripts/angular-aria.min.js"></script>
+    <script src="Scripts/checklist-model.js"></script>
+    <script src="Scripts/xml2json.js"></script>
+    <link rel="stylesheet" href="Content/angular-material.css" />
+
+
+    <script src="Scripts/angular-busy.js"></script>
+
+    <link href="Content/angular-busy.css" rel="stylesheet" type="text/css" />
+    <!--<script type="text/javascript"
+            src="https://jstest.authorize.net/v1/Accept.js"
+            charset="utf-8">
+    </script>-->
+</head>
+
+<body ng-app="OnboardBookingApp">
+    <div id="header_wrapper">
+        <header id="header" class="navbar-static-top">
+            <div class="topnav">
+            </div>
+            <div class="main-header">
+                <div class="container">
+                    <div class="logo navbar-brand">
+                        <a href="https://americancruiselines.com" title="ACL - home" target="_blank">
+                            <img src="https://aclmedia.azureedge.net/cmsmedia/libraries/acl/images/style-assets/original-site/logos/logo.png"
+                                alt="American Cruiselines">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </div>
+    <div class="container mainbody piecepage">
+<div ng-controller="OnboardBookingCtrl" ng-init="GetAllSpecialOccasions();GetAllData();" >
+    <div class="row maintenance" ng-show="maintenanceFlag == true">
+        <h3>{{maintenanceMsg}}</h3>
+    </div>
+
+    <div ng-show="maintenanceFlag == false">
+
+        <h3 class="text-center" ng-show="BookingSubmitted == 'False' && takepayment==false"> Onboard Rebooking </h3>
+        <div class="divList">
+            <div class="messagespace text-center" ng-show="invalidbooking == 'True' && BookingSubmitted == 'False'">
+                <h3 class="">
+                    This process must be started in the Shorex Application or in the Online Shorex
+                    Application
+                </h3>
+            </div>
+            <div class="row text-center"
+                ng-show="BookingSubmitted == 'True' && invalidbooking == 'False' && completepayment==false">
+                <h3 class="">Tentative Reservation Created<br /> </h3>
+                <div class="text-center">
+                    <br /><br />
+                    <div cg-busy="SyncPromise"></div>
+                    <div ng-show="listready=='False'">
+                        <div class="cg-busy-default-wrapper">
+                            <div class="cg-busy-default-sign">
+                                <div class="cg-busy-default-spinner">
+                                    <div class="bar1"></div>
+                                    <div class="bar2"></div>
+                                    <div class="bar3"></div>
+                                    <div class="bar4"></div>
+                                    <div class="bar5"></div>
+                                    <div class="bar6"></div>
+                                    <div class="bar7"></div>
+                                    <div class="bar8"></div>
+                                    <div class="bar9"></div>
+                                    <div class="bar10"></div>
+                                    <div class="bar11"></div>
+                                    <div class="bar12"></div>
+                                </div>
+                                <div class="cg-busy-default-text">Please Wait...</div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <h3>Total Amount {{invoiceTotalDue | currency:"$"}}</h3>
+                    <h3>Amount required to confirm reservation {{mindepositAmount | currency:"$"}}</h3>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-4 col-md-offset-2">
+                                <a id="btnSave" type="submit" form="RI" name="submit" target="_blank" value="Submit" href="https://{{receiptPath}}rebuid={{bookingId}}" class="btn btn-primary btn-lg">View Tentative</a>
+                            
+                                <!-- <form id="IN" method="post" action="/displayDoc.php" target="_blank"
+                                    enctype="multipart/form-data">
+                                    <input id="invoicebinary" type="hidden" name="pdf" value={{invoiceImage}}>
+                                    <button id="btnSave" type="submit" form="IN" name="submit" value="Submit"
+                                        class="btn btn-primary btn-lg">
+                                        View Tentative
+                                    </button>
+                                </form> -->
+                            </div>
+                            <div class="col-md-4">
+                                <button data-ng-click="setemailsend(true);" id="btnSave" value="Submit"
+                                    class="btn btn-primary btn-lg">
+                                    Email Tentative
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row" ng-show="emailsend">
+                            <div class="col-md-8 col-md-offset-2 btnarea">
+                                <form id="eml" name="eml" method="post" action="/displayDoc.php" target="_blank"
+                                    enctype="multipart/form-data">
+                                    <input id="invoicebinary" type="hidden" name="name" value="Invoice">
+
+                                    <input id="submit" type="hidden" name="type" value="tentative">
+                                    <div class="col-md-3">
+                                        <label id="EmailLabel" for="EmailLabel">
+                                            Enter Email<span class="reqasterisk"><strong>*</strong></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input id="emailinput" type="text" name="email" required
+                                            data-ng-model="emailinput">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button id="btnSave" type="submit" form="eml" name="submitbtn"
+                                            value="Submit" class="btn btn-primary btn-lg"
+                                            ng-disabled="emailinput=='' || emailinput==undefined">
+                                            Send
+                                        </button>
+                                    </div>
+                                    <input id="submit" type="hidden" name="submit" value="email" ng->
+                                    <!-- <input id="invoicebinary" type="hidden" name="pdf" value={{invoiceImage}}> -->
+                                    <input id="invoicebinary" type="hidden" name="options" value={{emailOption}}>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--<div class="row ">
+                        <div class="col-md-12">
+
+
+                            <div class="col-md-6 col-md-offset-3 btnarea">
+                                          <button data-ng-click="MakePayment();" id="btnSave" value="Submit" class="btn btn-primary btn-lg">Continue</button>
+                            </div>
+                        </div>
+                    </div>-->
+                </div>
+            </div>
+            <div class="messagespace text-center" ng-show="takepayment==true && completepayment==true">
+                <h3 class="">Booking Confirmed<br /> </h3>
+                <h3 class="">Payment Processed<br /> </h3>
+                <div class="text-center">
+                    <br /><br />
+                    <div class="col-md-12">
+
+                        <div class="col-md-4 col-md-offset-2">
+                            <a id="btnSave" type="submit" form="RI" name="submit" target="_blank" value="Submit" href="https://{{receiptPath}}rebuid={{bookingId}}" class="btn btn-primary btn-lg">View Receipt</a>
+                            
+                            <!-- <form id="RI" method="post" action="/displayDoc.php" target="_blank"
+                                enctype="multipart/form-data">
+                                <input id="invoicebinary" type="hidden" name="pdf" value={{receiptImage}}>
+                                <button id="btnSave" type="submit" form="RI" name="submit" value="Submit"
+                                    class="btn btn-primary btn-lg">
+                                    View Receipt
+                                </button>
+                            </form> -->
+                        </div>
+                        <div class="col-md-4">
+                            <button data-ng-click="setemailsendReceipt(true);" id="btnSave" value="Submit"
+                                class="btn btn-primary btn-lg">
+                                Email Receipt
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row" ng-show="emailsendReceipt">
+                        <div class="col-md-10 col-md-offset-1 btnarea">
+                            <form name="emlR" id="emlR" method="post" action="/displayDoc.php" target="_blank"
+                                enctype="multipart/form-data">
+                                <input id="invoicebinary" type="hidden" name="name" value="Receipt">
+                                <div>
+                                    <div class="col-md-3">
+                                        <label id="EmailLabel" for="EmailLabel">
+                                            Enter Email<span class="reqasterisk"><strong>*</strong></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input id="emailinput" type="text" name="email" required
+                                            data-ng-model="emailinput">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button id="btnSave" type="submit" form="emlR" name="submitbtn"
+                                            value="Submit" class="btn btn-primary btn-lg"
+                                            ng-disabled="emailinput=='' || emailinput==undefined">
+                                            Send
+                                        </button>
+                                    </div>
+                                </div>
+                                <input id="submit" type="hidden" name="type" value="booking">
+
+                                <input id="submit" type="hidden" name="submit" required value="email">
+                                <!-- <input id="invoicebinary" type="hidden" name="pdf" value={{receiptImage}}> -->
+                                <input id="invoicebinary" type="hidden" name="options" value={{emailOption}}>
+                            </form>
+                        </div>
+                    </div>
+                    <!--<div class="col-md-6">
+                            <button ng-click="clearEmpty();" id="btnSave" class="btn btn-primary btn-lg">Close Tab</button>
+                        </div>-->
+
+                </div>
+            </div>
+            <div class="payment-options-form col-md-10 col-md-offset-2"
+                ng-show="takepayment==true && completepayment==false">
+                <form id="paymentForm" name="paymentForm">
+                    <div class="form-title">
+                        <h3>To confirm reservation enter credit card information</h3>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group success">
+                                <span>
+                                    If someone
+                                    other than those shown is making the payment, please call Customer Service at
+                                    1-800-894-8570
+                                </span>
+                                <br />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="splitPay" class="control-label">Would you like to split the payment between credit cards?</label>
+                                <div>
+                                    <input autocomplete="off" type="radio" name="splitPay"
+                                        ng-model="splitPayment" value="Yes" ng-change="makesplitpay()">
+                                    <span class="radiolabel">
+                                        Yes
+                                    </span>
+                                    <input autocomplete="off" type="radio" name="splitPay"
+                                        ng-model="splitPayment" value="No" ng-change="makesplitpay()">
+                                    <span class="radiolabel">No</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group success">
+                                <label id="DepositFirstNameLabel" for="DepositFirstName">
+                                    Which guest is making the
+                                    payment?<span class="reqasterisk"><strong>*</strong></span>
+                                </label><br />
+                                <label>
+                                    <input type="radio" ng-model="selfolio" ng-required="true" ng-value="folio1"
+                                        ng-change="setdefaultname()">
+                                    {{guest1name}}
+                                </label><br />
+                                <label ng-show="folio2!=undefined">
+                                    <input type="radio" ng-model="selfolio" ng-required="true" ng-value="folio2"
+                                        ng-change="setdefaultname()">
+                                    {{guest2name}}
+                                </label><br />
+                                <br />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group success" ng-show="splitPayment === 'Yes'">
+                                <label id="DepositFirstNameLabel" for="DepositFirstName">
+                                    Which guest is making the
+                                    payment?<span class="reqasterisk"><strong>*</strong></span>
+                                </label><br />
+                                <label>
+                                    <input type="radio" ng-model="selfolio2" ng-required="splitPayment === 'Yes'" ng-value="folio1"
+                                        ng-change="setdefaultname()">
+                                    {{guest1name}}
+                                </label><br />
+                                <label ng-show="folio2!=undefined">
+                                    <input type="radio" ng-model="selfolio2" ng-required="splitPayment === 'Yes'" ng-value="folio2"
+                                        ng-change="setdefaultname()">
+                                    {{guest2name}}
+                                </label><br />
+                                <br />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group success">
+                                <label id="DepositFirstNameLabel" for="DepositFirstName">
+                                    Name on Card<span class="reqasterisk"><strong>*</strong></span>
+                                </label>
+                                <input class="form-control" ng-required="true" id="DepositFirstName"
+                                    name="DepositFirstName" placeholder="First Name" type="text"
+                                    ng-model="DepositFirstName">
+                                <input class="form-control" ng-required="true" id="DepositLastName"
+                                    name="DepositLastName" placeholder="Last Name" style="margin-top:20px"
+                                    type="text" ng-model="DepositLastName">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group success" ng-show="splitPayment === 'Yes'">
+                                <label id="DepositFirstNameLabel" for="DepositFirstName">
+                                    Name on Card<span class="reqasterisk"><strong>*</strong></span>
+                                </label>
+                                <input class="form-control" ng-required="splitPayment === 'Yes'" id="DepositFirstName2"
+                                    name="DepositFirstName2" placeholder="First Name" type="text"
+                                    ng-model="DepositFirstName2">
+                                <input class="form-control" ng-required="splitPayment === 'Yes'" id="DepositLastName2"
+                                    name="DepositLastName2" placeholder="Last Name" style="margin-top:20px"
+                                    type="text" ng-model="DepositLastName2">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group success">
+                                <label id="DepositZipCodeLabel" for="DepositZipCode">
+                                    Billing Zip Code<span class="reqasterisk"><strong>*</strong></span>
+                                </label>
+                                <input class="form-control" ng-required="true" id="DepositZipCode"
+                                    name="DepositZipCode" placeholder="Billing Zip Code" type="text"
+                                    ng-model="DepositZipCode" aria-required="true" aria-invalid="false">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group success" ng-show="splitPayment === 'Yes'">
+                                <label id="DepositZipCodeLabel" for="DepositZipCode">
+                                    Billing Zip Code<span class="reqasterisk"><strong>*</strong></span>
+                                </label>
+                                <input class="form-control" ng-required="splitPayment === 'Yes'" id="DepositZipCode2"
+                                    name="DepositZipCode2" placeholder="Billing Zip Code" type="text"
+                                    ng-model="DepositZipCode2" aria-required="true" aria-invalid="false">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group success">
+                                <label id="DepositCardNumberLabel" for="DepositCardNumber">
+                                    Card Number<span class="reqasterisk"><strong>*</strong></span>
+                                </label>
+                                <input class="form-control" ng-required="true" id="DepositCardNumber"
+                                    name="DepositCardNumber" type="text" autocomplete="off"
+                                    ng-model="DepositCardNumber" aria-required="true" aria-invalid="false"><label
+                                    id="DepositCardNumber-error" class="error" for="DepositCardNumber"
+                                    style="display: none;"></label>
+                                
+                                <div class="card-payment-options">
+                                    <img src="https://aclmedia.azureedge.net/cmsmedia/libraries/acl/images/booking/payment-types/pay-visa-icon.svg"
+                                        alt="Visa">
+                                    <img src="https://aclmedia.azureedge.net/cmsmedia/libraries/acl/images/booking/payment-types/pay-mastercard-icon.svg"
+                                        alt="Mastercard">
+                                    <img src="https://aclmedia.azureedge.net/cmsmedia/libraries/acl/images/booking/payment-types/pay-discover-icon.svg"
+                                        alt="Discover">
+                                    <img src="https://aclmedia.azureedge.net/cmsmedia/libraries/acl/images/booking/payment-types/pay-american-express-icon.svg"
+                                        alt="American Express">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group success" ng-show="splitPayment === 'Yes'">
+                                <label id="DepositCardNumberLabel" for="DepositCardNumber">
+                                    Card Number<span class="reqasterisk"><strong>*</strong></span>
+                                </label>
+                                <input class="form-control" ng-required="splitPayment === 'Yes'" id="DepositCardNumber2"
+                                    name="DepositCardNumber2" type="text" autocomplete="off"
+                                    ng-model="DepositCardNumber2" aria-required="true" aria-invalid="false"><label
+                                    id="DepositCardNumber-error" class="error" for="DepositCardNumber"
+                                    style="display: none;"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label id="DepositExpirationMonthLabel" for="DepositExpirationMonth">
+                                    Expiration
+                                    Date<span class="reqasterisk"><strong>*</strong></span>
+                                </label>
+                                <div class="form-group two-fileds-horziontal">
+                                    <div class="text-left">
+                                        <select id="DepositExpirationMonth" ng-required="true"
+                                            name="DepositExpirationMonth" style="" aria-required="true"
+                                            aria-invalid="false" ng-model="DepositExpirationMonth">
+                                            <option value="">Month</option>
+                                            <option value="01">01</option>
+                                            <option value="02">02</option>
+                                            <option value="03">03</option>
+                                            <option value="04">04</option>
+                                            <option value="05">05</option>
+                                            <option value="06">06</option>
+                                            <option value="07">07</option>
+                                            <option value="08">08</option>
+                                            <option value="09">09</option>
+                                            <option value="10">10</option>
+                                            <option value="11">11</option>
+                                            <option value="12">12</option>
+                                        </select>
+                                    </div>
+                                    <div class="text-right">
+                                        <select class="text-left" id="DepositExpirationYear" ng-required="true"
+                                            name="DepositExpirationYear" style="" aria-required="true"
+                                            aria-invalid="false" ng-model="DepositExpirationYear">
+                                            <option value="">Year</option>
+
+                                            <option value="2022">2022</option>
+                                            <option value="2023">2023</option>
+                                            <option value="2024">2024</option>
+                                            <option value="2025">2025</option>
+                                            <option value="2026">2026</option>
+                                            <option value="2027">2027</option>
+                                            <option value="2028">2028</option>
+                                            <option value="2029">2029</option>
+                                            <option value="2030">2030</option>
+                                            <option value="2031">2031</option>
+                                            <option value="2032">2032</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group" ng-show="splitPayment === 'Yes'">
+                                <label id="DepositExpirationMonthLabel" for="DepositExpirationMonth">
+                                    Expiration
+                                    Date<span class="reqasterisk"><strong>*</strong></span>
+                                </label>
+                                <div class="form-group two-fileds-horziontal">
+                                    <div class="text-left">
+                                        <select id="DepositExpirationMonth2" ng-required="splitPayment === 'Yes'"
+                                            name="DepositExpirationMonth2" style="" aria-required="true"
+                                            aria-invalid="false" ng-model="DepositExpirationMonth2">
+                                            <option value="">Month</option>
+                                            <option value="01">01</option>
+                                            <option value="02">02</option>
+                                            <option value="03">03</option>
+                                            <option value="04">04</option>
+                                            <option value="05">05</option>
+                                            <option value="06">06</option>
+                                            <option value="07">07</option>
+                                            <option value="08">08</option>
+                                            <option value="09">09</option>
+                                            <option value="10">10</option>
+                                            <option value="11">11</option>
+                                            <option value="12">12</option>
+                                        </select>
+                                    </div>
+                                    <div class="text-right">
+                                        <select class="text-left" id="DepositExpirationYear2" ng-required="splitPayment === 'Yes'"
+                                            name="DepositExpirationYear2" style="" aria-required="true"
+                                            aria-invalid="false" ng-model="DepositExpirationYear2">
+                                            <option value="">Year</option>
+
+                                            <option value="2022">2022</option>
+                                            <option value="2023">2023</option>
+                                            <option value="2024">2024</option>
+                                            <option value="2025">2025</option>
+                                            <option value="2026">2026</option>
+                                            <option value="2027">2027</option>
+                                            <option value="2028">2028</option>
+                                            <option value="2029">2029</option>
+                                            <option value="2030">2030</option>
+                                            <option value="2031">2031</option>
+                                            <option value="2032">2032</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 security-form-control">
+                            <div class="form-group success">
+                                <label for="DepositCardAuthorizationCode">
+
+                                    <span id="DepositCardAuthorizationCodeLabel">Security Code</span><span
+                                        class="reqasterisk"><strong>*</strong></span>
+                                    <span class="card-payment-options">
+                                        <img src="https://aclmedia.azureedge.net/cmsmedia/libraries/acl/images/booking/payment-types/pay-backcard-icon.svg"
+                                            alt="Back">
+                                    </span>
+                                </label>
+
+                                <input class="form-control inputCardAuthorizationCode" ng-required="true"
+                                    id="DepositCardAuthorizationCode" name="DepositCardAuthorizationCode"
+                                    type="text" ng-model="DepositCardAuthorizationCode" aria-required="true"
+                                    aria-invalid="false">
+                                <div>
+                                    <img class="img-responsive norton-logo"
+                                        src="https://aclmedia.azureedge.net/cmsmedia/libraries/acl/images/booking/pay-norton-logo-min.png"
+                                        alt="Norton">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group success" ng-show="splitPayment === 'Yes'">
+                                <label for="DepositCardAuthorizationCode">
+                                    <span id="DepositCardAuthorizationCodeLabel">Security Code</span><span
+                                        class="reqasterisk"><strong>*</strong></span>
+                                    <span class="card-payment-options">
+                                        <img src="https://aclmedia.azureedge.net/cmsmedia/libraries/acl/images/booking/payment-types/pay-backcard-icon.svg"
+                                            alt="Back">
+                                    </span>
+                                </label>
+
+                                <input class="form-control inputCardAuthorizationCode" ng-required="splitPayment === 'Yes'"
+                                    id="DepositCardAuthorizationCode2" name="DepositCardAuthorizationCode2"
+                                    type="text" ng-model="DepositCardAuthorizationCode2" aria-required="true"
+                                    aria-invalid="false">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 security-form-control">
+                            <div class="form-group">
+                                <label for="DepositCardAuthorizationCode">
+                                    <span id="DepositCardAuthorizationCodeLabel">Payment Amount</span>
+                                </label>
+                                <input class="form-control confirm_deposit" ng-required="true"
+                                    data-ng-model="depositAmount" id="confirm_deposit" name="confirm_deposit" step="0.01"
+                                    type="number" aria-required="true" aria-invalid="false" 
+                                    ng-change="chkAmount('1')" ng-model-options='{ debounce: 1000 }'>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group" ng-show="splitPayment === 'Yes'">
+                                <label for="DepositCardAuthorizationCode">
+                                    <span id="DepositCardAuthorizationCodeLabel">Payment Amount</span>
+                                </label>
+                                <input class="form-control confirm_deposit" ng-required="splitPayment === 'Yes'"
+                                    data-ng-model="depositAmount2" id="confirm_deposit2" name="confirm_deposit2" step="0.01"
+                                    type="number" aria-required="splitPayment === 'Yes'" aria-invalid="false" 
+                                    ng-change="chkAmount('2')" ng-model-options='{ debounce: 1000 }'
+                                    >
+                                    <!-- min="{{mindepositAmount}}" max="{{invoiceTotalDue}}" step="0.01" -->
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="col-md-12 security-form-control">
+                            <span ng-show="amountinvalid == true" class="rednotice">
+                                Payment Amount
+                                must be at least ${{mindepositAmount}}
+                            </span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="col-md-12 security-form-control">
+                            <span ng-show="maxamountinvalid == true" class="rednotice">
+                                Payment Amount
+                                must not be more than ${{invoiceTotalDue}}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12" data-ng-click="togglediv()">
+                            <h3 style="cursor: pointer;"><span class="collapseicon" style="color: #428bca !important;">+</span>&nbsp;<a href="javascript: void(0)" style="text-decoration: underline;color: #428bca !important;">Enter Stateroom Requests</a></h3>
+                        </div>
+                    </div>
+
+                    <div class="collapse">
+                        <div class="row">
+                            <div class="col-md-12 transselection">
+                                <div class="form-group">
+                                    <label for="bedsize" class="control-label">Which size bed would you prefer in
+                                        your stateroom?</label>
+                                    <div>
+                                        <input autocomplete="off" type="radio" name="bedsize" ng-model="bedsize"
+                                            value="King" ng-show="kingshow">
+                                        <span class="radiolabel" ng-show="kingshow && numpassengers<3">
+                                            King Size Bed
+                                        </span>
+                                        <span class="radiolabel" ng-show="kingshow && numpassengers>2">
+                                            King Size Bed and Twin Bed
+                                        </span>
+
+                                        <input autocomplete="off" type="radio" name="bedsize" ng-model="bedsize"
+                                            value="Twin" ng-show="twotwinshow">
+                                        <span class="radiolabel" ng-show="twotwinshow && numpassengers<3">Two Twin
+                                            Size Beds</span>
+                                        <span class="radiolabel" ng-show="numpassengers>2">Three Twin Size
+                                            Beds</span>
+
+                                        <input autocomplete="off" type="radio" name="bedsize" ng-model="bedsize"
+                                            value="Single" ng-show="stayingsingleshow"> <span class="radiolabel"
+                                            ng-show="stayingsingleshow">I'm staying in a single stateroom</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="travelfriends" class="control-label">Will you be traveling
+                                        with friends or acquaintances in other
+                                        staterooms?</label>
+                                    <div>
+                                        <input autocomplete="off" type="radio" name="travelfriends"
+                                            ng-model="travelfriends" value="Yes">
+                                        <span class="radiolabel">
+                                            Yes
+                                        </span>
+                                        <input autocomplete="off" type="radio" name="travelfriends"
+                                            ng-model="travelfriends" value="No">
+                                        <span class="radiolabel">No</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" ng-show="travelfriends === 'Yes'">
+                                    <label for="travelfriends" class="control-label">Please list their last
+                                        name and staterooms?</label>
+                                </div>
+                                <div class="form-group" ng-show="travelfriends === 'Yes'">
+                                    <div class="col-md-6">
+                                        <label for="travelfriendname" class="control-label">Last Name</label>
+                                        <input autocomplete="off" type="text" id="travelfriendname"
+                                            ng-required="travelfriends === 'Yes'" ng-model="travelfriendsname1" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="travelfriendstateroom" class="control-label">Stateroom
+                                            Number<span class="reqasterisk"><strong></strong></span></label>
+                                        <input autocomplete="off" type="text" id="travelfriendstateroom"
+                                            ng-model="travelfriendstateroom1" />
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="travelfriends === 'Yes'">
+                                    <div class="col-md-6">
+                                        <label for="travelfriendname" class="control-label">Last Name<span
+                                                class="reqasterisk"><strong></strong></span></label>
+                                        <input autocomplete="off" type="text" id="travelfriendname"
+                                            ng-model="travelfriendsname2" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="travelfriendstateroom" class="control-label">Stateroom
+                                            Number<span class="reqasterisk"><strong></strong></span></label>
+                                        <input autocomplete="off" type="text" id="travelfriendstateroom"
+                                            ng-model="travelfriendstateroom2" />
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="travelfriends === 'Yes'">
+                                    <div class="col-md-6">
+                                        <label for="travelfriendname" class="control-label">Last Name<span
+                                                class="reqasterisk"><strong></strong></span></label>
+                                        <input autocomplete="off" type="text" id="travelfriendname"
+                                            ng-model="travelfriendsname3" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="travelfriendstateroom" class="control-label">Stateroom
+                                            Number<span class="reqasterisk"><strong></strong></span></label>
+                                        <input autocomplete="off" type="text" id="travelfriendstateroom"
+                                            ng-model="travelfriendstateroom3" />
+                                    </div>
+                                    <br/>
+                                </div>
+                            </div>                                
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 transselection">
+                                <div class="form-group">
+                                    <label for="specialOccasionC" class="control-label"
+                                    ng-class="{'paddingtop' : travelfriends === 'Yes'}">Will you be
+                                        celebrating a special occasion with
+                                        us?</label>
+                                    <div>
+                                        <input autocomplete="off" type="radio" name="specialOccasionC"
+                                            ng-model="specialOccasion" value="Yes">
+                                        <span class="radiolabel">
+                                            Yes
+                                        </span>
+                                        <input autocomplete="off" type="radio" name="specialOccasionC"
+                                            ng-model="specialOccasion" value="No">
+                                        <span class="radiolabel">No</span>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="specialOccasion === 'Yes'">
+                                    <label for="specOcc" class="control-label">Nature of the
+                                        celebration<span class="reqasterisk"><strong>*</strong></span> </label>
+                                    <div class="selectdiv">
+                                        <div ng-repeat="specOcc in SpecialOccasionsList">
+                                            <input autocomplete="off" type="radio" name="specocc"
+                                                value="{{specOcc.typString1}}" ng-model="selectedso"
+                                                ng-change="sochanged(specOcc)" /><span class="checklabel">
+                                                {{specOcc.typString1}}</span>
+                                        </div>
+                                    </div>
+                                    <div ng-show="selectedso=='Other'" class="selectdiv">
+                                        <label for="otherspecOcc" class="control-label">
+                                            Other Details<span class="reqasterisk"><strong>*</strong></span>
+                                        </label>
+                                        <div>
+                                            <input autocomplete="off" type="text" id="otherspecOcc"
+                                                ng-required="specialOccasion=='Yes' && selectedso=='Other'"
+                                                ng-model="otherspecOcc" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="specialOccasion === 'Yes'">
+                                    <label for="specOccDate" class="control-label">Date you would
+                                        like to celebrate?<span class="reqasterisk"><strong>*</strong></span><span
+                                            class="reddateformat">
+                                            &nbsp;Format
+                                            mm/dd/yyyy</span></label>
+                                    <div class="selectdiv">
+                                        <md-datepicker class="fullwidthdate" md-hide-icons="triangle"
+                                            autocomplete="off" type="date" name="specOccDate" id="specOccDate"
+                                            ng-required="specialOccasion=='Yes'" ng-model="specOccDate"
+                                            md-min-date="minDate">
+                                        </md-datepicker>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" ng-show="specialOccasion === 'Yes' && numpassengers>1">
+                                    <label for="specialOccasion" class="control-label">Which Guests are Celebrating this Special Occassion?<span class="reqasterisk"><strong>*</strong></span></label>
+                                    <div class="selectdiv">
+                                        <div class="ng-scope">
+                                            <input type="checkbox" ng-model="soparticipate1" ng-value="folio1"
+                                                style="width: 8%;">
+                                            <span class="checklabel ng-binding"
+                                                style="padding-left: 20px;">{{guest1name}}</span>
+                                        </div>
+                                        <div class="ng-scope" ng-show="folio2!=undefined">
+                                            <input type="checkbox" ng-model="soparticipate2" ng-value="folio2"
+                                                style="width: 8%;">
+                                            <span class="checklabel ng-binding"
+                                                style="padding-left: 20px;">{{guest2name}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div cg-busy="SyncPromise"></div>
+                        <div ng-show="listready=='False'">
+                            <div class="cg-busy-default-wrapper">
+                                <div class="cg-busy-default-sign">
+                                    <div class="cg-busy-default-spinner">
+                                        <div class="bar1"></div>
+                                        <div class="bar2"></div>
+                                        <div class="bar3"></div>
+                                        <div class="bar4"></div>
+                                        <div class="bar5"></div>
+                                        <div class="bar6"></div>
+                                        <div class="bar7"></div>
+                                        <div class="bar8"></div>
+                                        <div class="bar9"></div>
+                                        <div class="bar10"></div>
+                                        <div class="bar11"></div>
+                                        <div class="bar12"></div>
+                                    </div>
+                                    <div class="cg-busy-default-text">Please Wait...</div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="col-md-6 security-form-control">
+                            <div class="form-group">
+                                <!-- <button id="btnPrevious" class="btn btn-primary btn-lg" type="button" onclick="sendPaymentDataToAnet()">Process Payment</button>-->
+                                <button ng-disabled="!paymentForm.$valid || amountinvalid || maxamountinvalid || (specialOccasion === 'Yes'  && numpassengers>1 && (soparticipate1 == undefined || soparticipate1 == false)  && (soparticipate2 == undefined || soparticipate2 == false))" id="btnPrevious"
+                                    class="btn btn-primary btn-lg" type="button" ng-click="sendPaymentDataToAnet()">
+                                    Process Payment
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div ng-show="paymenterror!=undefined" class="rednotice">{{paymenterror}}</div>
+                        </div>
+
+                    </div>
+
+                </form>
+            </div>
+
+
+            <div class="divList"
+                ng-show="invalidbooking == 'False' && BookingSubmitted == 'False' && takepayment==false">
+                <div>
+                    <label for="agent" class="control-label smalllabel">Guests Selected for Booking</label>
+                    <div>
+                        {{guest1name}}
+                    </div>
+                    <div>
+                        {{guest2name}}
+                    </div>
+
+                    <label for="agent" class="control-label smalllabel">Agency On Current Booking</label>
+
+                    <div>
+                        {{currAgency.Name}}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <span class="reqasterisk"><strong>*</strong></span><strong> = required</strong>
+                        <span ng-show="!BookingInformationForm.$valid" class="rednotice">
+                            &nbsp;&nbsp;Please complete
+                            all fields as indicated below
+                        </span>
+                    </div>
+                </div>
+
+
+                <div class="expandarea">
+                    <div id="accordion">
+
+                        <form name="BookingInformationForm">
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading" data-toggle="collapse" data-target="passengerinfo"
+                                    aria-expanded="false" aria-controls="passengerinfo">
+                                    Select Cruise Options
+                                </div>
+                                <div class="panel-body">
+                                    <!--<div ng-controller="myDynamicLinkCtrl" class="divList">-->
+                                    <div class="divList">
+                                        <div class="row">
+                                            <div class="pure-form">
+                                                <div class="col-md-12">
+                                                    <div cg-busy="SyncPromise"></div>
+                                                    <div ng-show="listready=='False'">
+                                                        <div class="cg-busy-default-wrapper">
+                                                            <div class="cg-busy-default-sign">
+                                                                <div class="cg-busy-default-spinner">
+                                                                    <div class="bar1"></div>
+                                                                    <div class="bar2"></div>
+                                                                    <div class="bar3"></div>
+                                                                    <div class="bar4"></div>
+                                                                    <div class="bar5"></div>
+                                                                    <div class="bar6"></div>
+                                                                    <div class="bar7"></div>
+                                                                    <div class="bar8"></div>
+                                                                    <div class="bar9"></div>
+                                                                    <div class="bar10"></div>
+                                                                    <div class="bar11"></div>
+                                                                    <div class="bar12"></div>
+                                                                </div>
+                                                                <div class="cg-busy-default-text">
+                                                                    Please Wait...
+                                                                </div>
+
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="row ">
+                                                        <div class="form-horizontal">
+                                                            <div class="col-md-12 inputform">
+                                                                <div class="row">
+                                                                    <div class="col-md-3 transselection">
+
+                                                                        <div>
+                                                                            <label for="CTsel"
+                                                                                class="control-label">
+                                                                                Select a Cruise Type<span
+                                                                                    class="reqasterisk"><strong>*</strong></span>
+                                                                            </label>
+
+                                                                            <select name="CruiseTypeList"
+                                                                                data-ng-model="CruiseType"
+                                                                                ng-required="true"
+                                                                                data-ng-options="g.ctptypeId as g.ctptypeString for g in CruiseTypes  | orderBy:'Name'"
+                                                                                ng-change="GetShipsForCruiseType();changeselection=true;ShipSel=undefined;">
+                                                                                <option value="">
+                                                                                    -- Select Cruise Type --
+                                                                                </option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-3 transselection"
+                                                                        ng-show="CruiseType != undefined">
+                                                                        <div>
+                                                                            <label for="Shipsel"
+                                                                                class="control-label">
+                                                                                Select a
+                                                                                Ship<span
+                                                                                    class="reqasterisk"><strong>*</strong></span>
+                                                                            </label>
+                                                                            <select name="ShipList"
+                                                                                data-ng-model="ShipSel"
+                                                                                ng-required="true"
+                                                                                data-ng-options="g.FacilityId as g.Name for g in Ships  | orderBy:'Name'"
+                                                                                ng-change="GetDeparturesForShip();changeselection=true;">
+                                                                                <option value="">
+                                                                                    -- Select Ship --
+                                                                                </option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-3 transselection">
+                                                                        <div ng-show="ShipSel != undefined">
+                                                                            <div>
+                                                                                <label for="DepartureDate"
+                                                                                    class="control-label">
+                                                                                    Select a
+                                                                                    Cruise<span
+                                                                                        class="reqasterisk"><strong>*</strong></span>
+                                                                                </label>
+                                                                                <select name="DepartList"
+                                                                                    class="Departlist"
+                                                                                    ng-model="EventID"
+                                                                                    ng-required="true"
+                                                                                    ng-change="GetCategoriesForCruise();GetAllLandPackages();GetAllMidCruisePackages();changeselection=true;">
+                                                                                    <option value="">
+                                                                                        -- Select a
+                                                                                        cruise --
+                                                                                    </option>
+                                                                                    <option
+                                                                                        ng-repeat="departure in Departures | orderBy:'BegDate'"
+                                                                                        value={{departure.EventId}}>
+                                                                                        {{
+                                                                                        departure.BegDate |
+                                                                                        date:"MMM dd, yyyy"
+                                                                                        }}
+                                                                                        {{departure.BegLocation}}-{{departure.EndLocation}}
+                                                                                        <!--{{departure.BegLocation}}-{{departure.EndLocation}} {{ (departure.EndLocation == "JAC" || departure.BegLocation == "JAC") ? " *NP" : ""}}-->
+                                                                                    </option>
+
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-3 transselection">
+                                                                        <div ng-show="EventID != undefined">
+                                                                            <label for="Category"
+                                                                                class="control-label">
+                                                                                Select a
+                                                                                Category
+                                                                            </label>
+                                                                            <div ng-show="Categories.length!=0">
+                                                                                <select name="ShipList"
+                                                                                    ng-required="selRoom==undefined"
+                                                                                    data-ng-model="selCategory"
+                                                                                    data-ng-options="g.CategoryId as g.Name for g in Categories"
+                                                                                    ng-change="GetAvailableRooms();getOptions();getCFAR();changeselection=true;">
+                                                                                    <option value="">
+                                                                                        -- Select
+                                                                                        Category --
+                                                                                    </option>
+
+                                                                                </select>
+
+                                                                            </div>
+                                                                            <div ng-show="Categories.length==0">
+                                                                                There are no rooms available on this
+                                                                                cruise
+                                                                            </div>
+
+                                                                        </div>
+
+                                                                    </div>
+                                                                    <div class="col-md-3 transselection">
+                                                                        <div ng-show="EventID != undefined">
+
+
+                                                                            <div>
+                                                                                <label for="RoomNum"
+                                                                                    class="control-label">
+                                                                                    Select a
+                                                                                    Room Number
+                                                                                </label>
+                                                                                <div ng-show="AvailRoomlength!=0">
+
+                                                                                    <select name="ShipList"
+                                                                                        ng-required="selCategory==undefined"
+                                                                                        data-ng-model="selRoom"
+                                                                                        data-ng-options="r.UnitId as r.Code for r in AvailRoomList  | orderBy:'Code'"
+                                                                                        ng-change="getCFAR();changeselection=true;">
+                                                                                        <option value="">
+                                                                                            -- Select
+                                                                                            Room --
+                                                                                        </option>
+
+                                                                                    </select>
+                                                                                </div>
+                                                                                <div
+                                                                                    ng-show="AvailRoomlength==0 && Categories.length!=0">
+                                                                                    Single Occupancy Only - Please
+                                                                                    select a different category
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+
+
+                                                                    <div class="col-md-12">
+                                                                        <h3>{{ItineraryDisplay}} </h3>
+
+                                                                    </div>
+                                                                </div>
+                                                                <!--<div class="row">
+
+
+                                                                    <div class="col-md-3 transselection" ng-show="currAgency.AgencyId!=12">
+                                                                        <div>
+                                                                            <div>
+                                                                                <input class="agentcheck" type="checkbox" name="ApplytoAgent" ng-model="ApplyToAgent" /> Apply to Travel Agent
+
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div> -->
+
+                                                                <div class="row"
+                                                                    ng-show="AirFair != undefined && AirFair.length > 0">
+                                                                    <div class="col-md-12">
+                                                                        <h3>Airfare <span
+                                                                                class="reqasterisk"><strong>*</strong></span>
+                                                                        </h3>
+                                                                    </div>
+                                                                    <div class="col-md-12"
+                                                                        ng-repeat="af in AirFair">
+                                                                        <div class="row">
+                                                                            <div
+                                                                                class="col-md-12 radiocolumn radiorow">
+                                                                                <div
+                                                                                    class="col-md-9 radiocolumn radiowrap">
+                                                                                    <input type="radio"
+                                                                                        name="afselect"
+                                                                                        id="afselect"
+                                                                                        data-ng-model="$parent.airfairselectedmodel"
+                                                                                        ng-required="true"
+                                                                                        ng-value="af.ItemId"
+                                                                                        ng-click="optAirFair(af)"
+                                                                                        ng-change="selectionChanged()">
+
+                                                                                    <span>
+                                                                                        {{af.Name}}
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div class="col-md-3 stackwrap"
+                                                                                    style="padding-top: 5px;">
+                                                                                    <span
+                                                                                        ng-show="af.Name!='Airfare Declined'">{{af.RateList[0].Price
+                                                                                        > 0 ?
+                                                                                        (af.RateList[0].Price|currency)
+                                                                                        + " Per Person" :
+                                                                                        "Complimentary"}}</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="row"
+                                                                    ng-show="PreCruise != undefined && PreCruise.length > 1">
+                                                                    <div class="col-md-12">
+                                                                        <h3>
+                                                                            Pre Cruise Additional Items <span
+                                                                                class="reqasterisk"><strong>*</strong></span>
+                                                                        </h3>
+                                                                    </div>
+                                                                    <div class="col-md-12"
+                                                                        ng-repeat="prec in PreCruise">
+                                                                        <div class="row">
+                                                                            <div
+                                                                                class="col-md-12 radiocolumn radiorow">
+                                                                                <div
+                                                                                    class="col-md-6 radiocolumn radiowrap">
+                                                                                    <input type="radio"
+                                                                                        name="precselect"
+                                                                                        id="precselect"
+                                                                                        data-ng-model="$parent.preoptselectedmodel"
+                                                                                        ng-required="true"
+                                                                                        ng-value="prec.ItemId"
+                                                                                        ng-click="optPreCruise(prec)"
+                                                                                        ng-change="selectionChanged()">
+
+                                                                                    <span>
+                                                                                        {{prec.Name}}
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div class="col-md-3 stackwrap"
+                                                                                    style="padding-top: 5px;">
+                                                                                    <span
+                                                                                        ng-show="prec.Name!='Hotel Declined'">{{prec.BegDate
+                                                                                        | date:'shortDate'}} -
+                                                                                        {{prec.EndDate |
+                                                                                        date:'shortDate'}}</span>
+                                                                                </div>
+                                                                                <div class="col-md-3 stackwrap"
+                                                                                    style="padding-top: 5px;">
+                                                                                    <span
+                                                                                        ng-show="prec.Name!='Hotel Declined'">{{prec.RateList[0].Price
+                                                                                        > 0 ?
+                                                                                        (prec.RateList[0].Price|currency)
+                                                                                        + " Per Person" :
+                                                                                        "Complimentary"}}</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="row"
+                                                                    ng-show="PostCruise != undefined && PostCruise.length > 0">
+                                                                    <div class="col-md-12">
+                                                                        <h3>Post Cruise Additional Items <span
+                                                                                class="reqasterisk"><strong>*</strong></span>
+                                                                        </h3>
+                                                                    </div>
+                                                                    <div class="col-md-12"
+                                                                        ng-repeat="postc in PostCruise">
+                                                                        <div class="row">
+                                                                            <div
+                                                                                class="col-md-12 radiocolumn radiorow">
+                                                                                <div
+                                                                                    class="col-md-6 radiocolumn radiowrap">
+                                                                                    <input type="radio"
+                                                                                        name="postcselect"
+                                                                                        id="postcselect"
+                                                                                        data-ng-model="$parent.postoptselectedmodel"
+                                                                                        ng-required="true"
+                                                                                        ng-value="postc.ItemId"
+                                                                                        ng-click="optPostCruise(postc)"
+                                                                                        ng-change="selectionChanged()">
+
+                                                                                    <span>
+                                                                                        {{postc.Name}}
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div class="col-md-3 stackwrap"
+                                                                                    style="padding-top: 5px;">
+                                                                                    <span
+                                                                                        ng-show="postc.Name!='Post Cruise Package Declined'">{{postc.BegDate
+                                                                                        | date:'shortDate'}} -
+                                                                                        {{postc.EndDate |
+                                                                                        date:'shortDate'}}</span>
+                                                                                </div>
+                                                                                <div class="col-md-3 stackwrap"
+                                                                                    style="padding-top: 5px;">
+                                                                                    <span
+                                                                                        ng-show="postc.Name!='Post Cruise Package Declined'">{{postc.RateList[0].Price
+                                                                                        > 0 ?
+                                                                                        (postc.RateList[0].Price|currency)
+                                                                                        + " Per Person" :
+                                                                                        "Complimentary"}}</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+
+                                                                <div class="row" ng-show="CFAR != undefined">
+
+                                                                    <div class="col-md-12">
+                                                                        <h3>Cancellation Protection Plan <span
+                                                                                class="reqasterisk"><strong>*</strong></span>
+                                                                        </h3>
+
+
+                                                                    </div>
+                                                                    <div class="col-md-12 transselection">
+
+                                                                        <div class="row">
+
+
+                                                                            <div
+                                                                                class="col-md-12 radiocolumn radiorow">
+
+                                                                                <div
+                                                                                    class="col-md-9 radiocolumn radiorow ">
+
+                                                                                    <input type="radio"
+                                                                                        name="cfarselect"
+                                                                                        id="cfarselect"
+                                                                                        ng-model="selCFAR"
+                                                                                        ng-required="true"
+                                                                                        ng-value="CFAR[1].ItemId+':M'"
+                                                                                        ng-change="selectionChanged()">
+
+                                                                                    <span>
+                                                                                        Confirm Cancellation
+                                                                                        Protection
+                                                                                        Plan
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div class="col-md-3">
+                                                                                    {{
+                                                                                    CFAR[1].RateList[0].Price |
+                                                                                    currency:"$"
+                                                                                    }} Per Person
+                                                                                </div>
+
+
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div
+                                                                                class="col-md-12 radiocolumn radiorow">
+                                                                                <div
+                                                                                    class="col-md-8 radiocolumn radiorow radiorow2">
+
+                                                                                    <input type="radio"
+                                                                                        name="cfarselect"
+                                                                                        id="cfarselect"
+                                                                                        ng-model="selCFAR"
+                                                                                        ng-required="true"
+                                                                                        ng-value="CFAR[0].ItemId"
+                                                                                        ng-change="selectionChanged()">
+
+                                                                                    <span>
+                                                                                        Decline Cancellation
+                                                                                        Protection
+                                                                                        Plan
+                                                                                    </span>
+
+                                                                                </div>
+                                                                            </div>
+
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!--<div class="col-md-5 col-md-offset-1 btnarea">-->
+                                            <!--<button ng-click="clearEmpty();" value="Submit" type="button" id="btnPrevious" class="btn btn-primary btn-lg">Close</button>-->
+                                            <!--</div>-->
+
+                                            <div cg-busy="SyncPromise"></div>
+                                            <div ng-show="listready=='False'">
+                                                <div class="cg-busy-default-wrapper">
+                                                    <div class="cg-busy-default-sign">
+                                                        <div class="cg-busy-default-spinner">
+                                                            <div class="bar1"></div>
+                                                            <div class="bar2"></div>
+                                                            <div class="bar3"></div>
+                                                            <div class="bar4"></div>
+                                                            <div class="bar5"></div>
+                                                            <div class="bar6"></div>
+                                                            <div class="bar7"></div>
+                                                            <div class="bar8"></div>
+                                                            <div class="bar9"></div>
+                                                            <div class="bar10"></div>
+                                                            <div class="bar11"></div>
+                                                            <div class="bar12"></div>
+                                                        </div>
+                                                        <div class="cg-busy-default-text">Please Wait...</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4 col-md-offset-4 form-group btnarea">
+                                                <button ng-show="!t2Booking"
+                                                    ng-disabled="!BookingInformationForm.$valid"
+                                                    data-ng-click="MakeTentativeBooking();" id="btnSave"
+                                                    value="Submit" class="btn btn-primary btn-lg">
+                                                    Reserve
+                                                </button>
+                                                <button ng-show="t2Booking"
+                                                    ng-disabled="!BookingInformationForm.$valid"
+                                                    data-ng-click="CompleteResevations();" id="btnSave"
+                                                    value="Submit" class="btn btn-primary btn-lg">
+                                                    Complete
+                                                    Reservation
+                                                </button>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <!--<div cg-busy="SyncPromise"></div>
+                                    <div ng-show="listready=='False'">
+                                        <div class="cg-busy-default-wrapper">
+                                            <div class="cg-busy-default-sign">
+                                                <div class="cg-busy-default-spinner">
+                                                    <div class="bar1"></div>
+                                                    <div class="bar2"></div>
+                                                    <div class="bar3"></div>
+                                                    <div class="bar4"></div>
+                                                    <div class="bar5"></div>
+                                                    <div class="bar6"></div>
+                                                    <div class="bar7"></div>
+                                                    <div class="bar8"></div>
+                                                    <div class="bar9"></div>
+                                                    <div class="bar10"></div>
+                                                    <div class="bar11"></div>
+                                                    <div class="bar12"></div>
+                                                </div>
+                                                <div class="cg-busy-default-text">Please Wait...</div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>-->
+
+                                    <div class="row">
+                                        <div class="col-md-11 col-md-offset-1">
+                                            <span class="reqasterisk"><strong>*</strong></span><strong>
+                                                =
+                                                required
+                                            </strong>
+                                            <span ng-show="!BookingInformationForm.$valid" class="rednotice">
+                                                &nbsp;&nbsp;Please complete all fields as
+                                                indicated above
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+        
+    </div>
+
+    <div id="footer_wrapper">
+        <footer id="footer">
+            <div class="footer-wrapper">
+                <div class="call-us">
+                    <span class="heading">If you have any questions, please email</span>
+                    <a href="mailto:customerservice@americancruiselines.com">
+                        <span class="contact-phone" style="color:white">customerservice@americancruiselines.com</span>
+                    </a>
+                </div>
+                <div class="container">
+                    <div class="footer">
+                        <div class="inner clearfix">
+                            <div class="subfooter clearfix">
+                                <div class="pull-right">
+                                    <a href="#" id="back-to-top" style="display: inline;">
+                                        <i class="soap-icon-longarrow-up circle"></i>
+                                    </a>
+                                </div>
+                                <div class="copyright">
+                                    <p>
+                                        © Copyright <span id="copyright_year">
+                                            <script>document.write(new Date().getFullYear())</script>
+                                        </span> American Cruise Lines. All rights reserved.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="Scripts/jquery-1.10.2.min.js"></script>
+    <script src="Scripts/bootstrap.min.js"></script>
+</body>
+
+</html>

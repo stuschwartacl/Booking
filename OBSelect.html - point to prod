@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onboard Booking</title>
+    <link href="Content/font-awesome.css" rel="stylesheet">
+    <!--load all styles -->
+    <link href="Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="Content/Site.css?version=3" rel="stylesheet" type="text/css" />
+    <script src="Scripts/modernizr-2.6.2.js"></script>
+    <link rel="shortcut icon" href="https://aclmedia.azureedge.net/cmsmedia/libraries/acl/images/favicon/favicon.png" type="image/x-icon" />
+    <script src="Scripts/angular.js"></script>
+    <script src="Scripts/OBSelect.js?version=5"></script>
+    <script src="Scripts/OnboardBooking.js?version=3"></script>
+    <script src="Scripts/angular-material.min.js"></script>
+    <script src="Scripts/angular-animate.min.js"></script>
+    <script src="Scripts/angular-aria.min.js"></script>
+    <script src="Scripts/checklist-model.js"></script>
+    <script src="Scripts/xml2json.js"></script>
+    <link rel="stylesheet" href="Content/angular-material.css" />
+
+
+    <script src="Scripts/angular-busy.js"></script>
+
+    <link href="Content/angular-busy.css" rel="stylesheet" type="text/css" />
+    <!--<script type="text/javascript"
+            src="https://jstest.authorize.net/v1/Accept.js"
+            charset="utf-8">
+    </script>-->
+</head>
+
+<body ng-app="OnboardBookingApp">
+    <div id="header_wrapper">
+        <header id="header" class="navbar-static-top">
+            <div class="topnav">
+            </div>
+            <div class="main-header">
+                <div class="container">
+                    <div class="logo navbar-brand">
+                        <a href="https://americancruiselines.com" title="ACL - home" target="_blank">
+                            <img src="https://aclmedia.azureedge.net/cmsmedia/libraries/acl/images/style-assets/original-site/logos/logo.png"
+                                 alt="American Cruiselines">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </div>
+    <div class="container mainbody piecepage">
+        <div>
+
+            <div class=".messagespacelogin  text-center">
+                <h3 class="">Please Click this link to complete an onboard rebooking</h3>
+                <a style="color: #2a6496;text-decoration: underline" href="https://traveldocuments.americancruiselines.com/OnboardBooking/OBStart"><h3><u>Onboard Rebooking</u></h3></a>
+            </div>
+
+
+       
+        </div>
+    </div>
+
+    <div id="footer_wrapper">
+        <footer id="footer">
+            <div class="footer-wrapper">
+                <div class="call-us">
+                    <span class="heading">If you have any questions, please email</span>
+                    <a href="mailto:customerservice@americancruiselines.com">
+                        <span class="contact-phone"
+                              style="color:white">customerservice@americancruiselines.com</span>
+                    </a>
+                </div>
+                <div class="container">
+                    <div class="footer">
+                        <div class="inner clearfix">
+                            <div class="subfooter clearfix">
+                                <div class="pull-right">
+                                    <a href="#" id="back-to-top" style="display: inline;">
+                                        <i class="soap-icon-longarrow-up circle"></i>
+                                    </a>
+                                </div>
+                                <div class="copyright">
+                                    <p>
+                                        © Copyright <span id="copyright_year">
+                                            <script>document.write(new Date().getFullYear())</script>
+                                        </span> American Cruise Lines. All rights reserved.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="Scripts/jquery-1.10.2.min.js"></script>
+    <script src="Scripts/bootstrap.min.js"></script>
+</body>
+
+</html>
