@@ -1,6 +1,9 @@
 ﻿var app = angular.module("OnboardBookingApp", ['checklist-model', 'cgBusy', 'ngCookies']);
 
 
+
+
+
 app.directive('ngReallyClick', [function () {
     return {
         restrict: 'A',
@@ -42,8 +45,8 @@ app.directive('ngReallyClick', [function () {
 
 app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$timeout', '$q', '$filter', 'OnboardBooking_CONFIG', '$window', '$cookies', function ($scope, $http, orderBy, $timeout, $q, $filter, OnboardBooking_CONFIG, $window, $cookies) {
 
-
-
+     
+    
     var aclBasePath = OnboardBooking_CONFIG.aclBasePath;
     var pscBasePath = OnboardBooking_CONFIG.pscBasePath;
     var InternalbasePath = OnboardBooking_CONFIG.InternalbasePath;
@@ -68,16 +71,16 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
 
     $scope.copyrightdate = new Date().getFullYear();
     $scope.checked = 0;
-
+   
     $scope.isIE = function () {
 
         if (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > 0) {
             $scope.isIE = true;
-
+           
         }
-        else
+        else 
             $scope.isIEreturn = false;
-
+        
 
     }
     function loadScript(url) {
@@ -88,7 +91,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         head.appendChild(script);
     }
 
-
+  
     function urlParam(name) {
         var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
         if (results == null) {
@@ -98,8 +101,8 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             return decodeURI(results[1]) || 0;
         }
     }
-
-
+  
+   
 
     $scope.sortBy = function (propertyName) {
         $scope.reverse = (propertyName !== null && $scope.propertyName === propertyName)
@@ -173,16 +176,16 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
 
         // STU - DEV
         $scope.validuser = true;
-        if ($scope.validuser) {
-            $scope.GetAllShips();
-            $scope.NeedAuthentication = false;
-            //create cookies
-            var now = new Date(),
-                // this will set the expiration to 12 years
-                expiresdate = new Date(now.getFullYear() + 12, now.getMonth(), now.getDate());
-            $cookies.put('OBBID', $scope.loginid, { expires: expiresdate });
-            $cookies.put('OBBLastLogin', new Date(), { expires: expiresdate });
-        }
+                    if ($scope.validuser) {
+                        $scope.GetAllShips();
+                        $scope.NeedAuthentication = false;
+                        //create cookies
+                        var now = new Date(),
+                            // this will set the expiration to 12 years
+                            expiresdate = new Date(now.getFullYear() + 12, now.getMonth(), now.getDate());
+                        $cookies.put('OBBID', $scope.loginid, { expires: expiresdate });
+                        $cookies.put('OBBLastLogin', new Date(), { expires: expiresdate });
+                    }
 
 
         // STU - END DEV
@@ -243,12 +246,12 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
     }
 
     $scope.GetAllShips = function () {
-        params = {};
+           params = {};
         $scope.Ships = [];
         // ACL Ship Names
-        $scope.SyncPromise = $http({
-            method: "post",
-            datatype: "json",
+          $scope.SyncPromise = $http({
+          method: "post",
+          datatype: "json",
             url: aclBasePath + "GetAllShipNames"
         }).then(function (response) {
             if (response.status == 200) {
@@ -279,11 +282,12 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             datatype: "json",
             data: {},
             url: pscBasePath + "GetAllShipNames"
-        }).then(function (response) {
-            if (response.status == 200) {
-                Response = response.data;
-                if (response.data !== "") {
-                    if (Response.GetAllShipNames.Result.Status == "A") {
+          }).then(function (response) {
+              if (response.status == 200) {
+                  Response = response.data;
+                  if (response.data !== "") {
+
+                      if (Response.GetAllShipNames.Result.Status == "A") {
                         //$scope.Ships = Response.GetAllShipNames.FacilityList;
                         Response.GetAllShipNames.FacilityList.forEach(x => {
                             x.Name = $scope.toTitleCase(x.Name);
@@ -291,21 +295,21 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                         });
                         // Sort by name
                         $scope.Ships.sort((a,b) => (a.Name > b.Name) ? 1 : ((b.Name > a.Name) ? -1 : 0));
-                    }
-                    if (Response.GetAllShipNames.Result.Status == "U") {
-                        alert("Unuathorized for GetDepartureDatesforShip");
-                    }
-                }
-            }
-            else
-                alert(response.statusText);
+                      }
+                      if (Response.GetAllShipNames.Result.Status == "U") {
+                          alert("Unuathorized for GetDepartureDatesforShip");
+                      }
+                  }
+              }
+              else
+                  alert(response.statusText);
 
         }, function () {
             alert("Error Occured in Get Ships");
         });
 
     }
-
+   
 
     $scope.toTitleCase = function(str) {
         return str.replace(
@@ -315,7 +319,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
           }
         );
       }
-
+   
     $scope.GetAllCurrentPassengers = function () {
         params = {};
         params.ShipCode = $scope.selShipCode;
@@ -335,7 +339,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                         tempPAXList = Response.GetPassengersOnCurrentCruise.PassengerList;
                         //add placeholder for checkbox
                         angular.forEach(tempPAXList, function (PAX)
-                        //   tempPAXList.forEach(PAX)
+                     //   tempPAXList.forEach(PAX)
                         {
                             PAX.RebookSelected = 0;
                         })
@@ -354,7 +358,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         }, function () {
             alert("Error Occured in get passengers");
         })
-
+          
 
 
     }
@@ -437,7 +441,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             alert("Error Occured");
         })
 
-
+      
 
     }
 }])  
