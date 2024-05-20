@@ -19,7 +19,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$document','$http', 'orderByFil
 
      
     
-    var basePath = OnboardBooking_CONFIG.basePath;
+    var aclBasePath = OnboardBooking_CONFIG.aclBasePath;
     var referrerComp = OnboardBooking_CONFIG.referrer;
     var testreferrerComp = OnboardBooking_CONFIG.testreferrer;
     var webreferrerComp = OnboardBooking_CONFIG.referrerWEB;
@@ -115,7 +115,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$document','$http', 'orderByFil
           method: "post",
             datatype: "application/json",
             data: JSON.stringify(params),
-            url: basePath + "GetTentativeBookings"
+            url: aclBasePath + "GetTentativeBookings"
 
         }).then(function (response) {
             Response = response.data;
@@ -240,7 +240,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$document','$http', 'orderByFil
         params.LatestInvoiceInd = "1";
         $scope.SyncPromise = $http({
             method: "post",
-            url: basePath + "GetReceiptImage",
+            url: aclBasePath + "GetReceiptImage",
             datatype: "application/json",
             data: JSON.stringify(params)
         }).then(function (response) {

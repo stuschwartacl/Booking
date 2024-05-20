@@ -354,7 +354,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         params.obbuid = $scope.obbuid;
         $scope.SyncPromise = $http({
             method: "post",
-            url: basePath + "GetOnboardBookingAddItems",
+            url: aclBasePath + "GetOnboardBookingAddItems",
             datatype: "application/json",
             data: JSON.stringify(params)
         }).then(function (response) {
@@ -444,7 +444,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         $http({
             method: "get",
             datatype: "application/json",
-            url: basePath + "GetItemsForCruise&EventID=" + $scope.EventID + "&GroupType=FL&TypeCode="
+            url: aclBasePath + "GetItemsForCruise&EventID=" + $scope.EventID + "&GroupType=FL&TypeCode="
         }).then(function (response) {
             Response = response.data;
             //console.log("Air Fair", response);
@@ -491,7 +491,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         $http({
             method: "get",
             datatype: "application/json",
-            url: basePath + "GetItemsForCruise&EventID=" + $scope.EventID + "&GroupType=HT&TypeCode=PKG-PRE"
+            url: aclBasePath + "GetItemsForCruise&EventID=" + $scope.EventID + "&GroupType=HT&TypeCode=PKG-PRE"
         }).then(function (response) {
             Response = response.data;
             //console.log("Pre Cruise", response);
@@ -542,7 +542,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         $http({
             method: "get",
             datatype: "application/json",
-            url: basePath + "GetItemsForCruise&EventID=" + $scope.EventID + "&GroupType=HT&TypeCode=PKG-POST"
+            url: aclBasePath + "GetItemsForCruise&EventID=" + $scope.EventID + "&GroupType=HT&TypeCode=PKG-POST"
         }).then(function (response) {
             Response = response.data;
             //console.log("Post Cruise", response);
@@ -589,7 +589,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         $http({
             method: "get",
             datatype: "application/json",
-            url: basePath + "GetItemsForCruise&EventID=" + $scope.EventID + "&GroupType=OT&TypeCode=LAND"
+            url: aclBasePath + "GetItemsForCruise&EventID=" + $scope.EventID + "&GroupType=OT&TypeCode=LAND"
         }).then(function (response) {
             Response = response.data;
             //console.log("Pre Cruise", response);
@@ -636,7 +636,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         $http({
             method: "get",
             datatype: "application/json",
-            url: basePath + "GetItemsForCruise&EventID=" + $scope.EventID + "&GroupType=OT&TypeCode=PKG-MID"
+            url: aclBasePath + "GetItemsForCruise&EventID=" + $scope.EventID + "&GroupType=OT&TypeCode=PKG-MID"
         }).then(function (response) {
             Response = response.data;
             //console.log("Pre Cruise", response);
@@ -708,7 +708,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             datatype: "application/json",
             data: JSON.stringify(params),
 
-            url: basePath + "GetOnboardMarketingType"
+            url: aclBasePath + "GetOnboardMarketingType"
 
         }).then(function (response) {
             if (response.status == 200) {
@@ -742,7 +742,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             datatype: "application/json",
             data: JSON.stringify(params),
 
-            url: basePath + "GetAllCruiseTypes"
+            url: aclBasePath + "GetAllCruiseTypes"
 
         }).then(function (response) {
             if (response.status == 200) {
@@ -779,7 +779,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                 datatype: "application/json",
                 data: JSON.stringify(params),
 
-                url: basePath + "GetShipsForCruiseType"
+                url: aclBasePath + "GetShipsForCruiseType"
 
             }).then(function (response) {
                 if (response.status == 200) {
@@ -816,7 +816,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             datatype: "application/json",
             data: JSON.stringify(params),
 
-            url: basePath + "GetAllShipNames"
+            url: aclBasePath + "GetAllShipNames"
 
         }).then(function (response) {
             if (response.status == 200) {
@@ -869,7 +869,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
 
         $scope.SyncPromise = $http({
             method: "post",
-            url: basePath + "GetDepartureDatesforShip",
+            url: aclBasePath + "GetDepartureDatesforShip",
             datatype: "application/json",
             data: JSON.stringify(params)
         }).then(function (response) {
@@ -948,7 +948,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         thejson = JSON.stringify(params);
         $scope.SyncPromise = $http({
             method: "post",
-            url: basePath + "GetCategoriesforShip",
+            url: aclBasePath + "GetCategoriesforShip",
             datatype: "application/json",
             data: JSON.stringify(params)
         }).then(function (response) {
@@ -1020,7 +1020,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         thejson = JSON.stringify(params);
         $scope.SyncPromise = $http({
             method: "post",
-            url: basePath + "GetRoomsForCategory",
+            url: aclBasePath + "GetRoomsForCategory",
             datatype: "application/json",
             data: JSON.stringify(params)
         }).then(function (response) {
@@ -1059,7 +1059,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
 
         $scope.SyncPromise = $http({
             method: "post",
-            url: basePath + "GetAgentAssociatedWBooking",
+            url: aclBasePath + "GetAgentAssociatedWBooking",
             datatype: "application/json",
             data: JSON.stringify(params)
         }).then(function (response) {
@@ -1210,7 +1210,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
 
         $scope.SyncPromise = $http({
             method: "post",
-            url: basePath + "MakeTentativeBooking",
+            url: aclBasePath + "MakeTentativeBooking",
             datatype: "application/json",
             data: JSON.stringify(params)
         }).then(function (response) {
@@ -1302,7 +1302,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         params.LatestInvoiceInd = "";
         $scope.SyncPromise = $http({
             method: "post",
-            url: basePath + "GetReceiptImage",
+            url: aclBasePath + "GetReceiptImage",
             datatype: "application/json",
             data: JSON.stringify(params)
         }).then(function (response) {
@@ -1347,7 +1347,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         params.LatestInvoiceInd = "1";
         $scope.SyncPromise = $http({
             method: "post",
-            url: basePath + "GetReceiptImage",
+            url: aclBasePath + "GetReceiptImage",
             datatype: "application/json",
             data: JSON.stringify(params)
         }).then(function (response) {
@@ -1429,7 +1429,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
 
         $scope.SyncPromise = $http({
             method: "post",
-            url: basePath + "GetBookingPrice",
+            url: aclBasePath + "GetBookingPrice",
             datatype: "application/json",
             data: JSON.stringify(params)
         }).then(function (response) {
@@ -1590,7 +1590,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             if ($scope.beddingSubmitted == undefined) {
                 $scope.SyncPromise = $http({
                     method: "post",
-                    url: basePath + "UpdateBedding",
+                    url: aclBasePath + "UpdateBedding",
                     datatype: "application/json",
                     data: JSON.stringify(params)
                 }).then(function (response) {
@@ -1633,7 +1633,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         if ($scope.specialOccasionSubmitted == undefined) {
             $scope.SyncPromise = $http({
                 method: "post",
-                url: basePath + "UpdateSpecialOccassion",
+                url: aclBasePath + "UpdateSpecialOccassion",
                 datatype: "application/json",
                 data: JSON.stringify(params)
             }).then(function (response) {
@@ -1681,7 +1681,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             if ($scope.travelWithSubmitted == undefined) {
                 $scope.SyncPromise = $http({
                     method: "post",
-                    url: basePath + "UpdateTravellingWith",
+                    url: aclBasePath + "UpdateTravellingWith",
                     datatype: "application/json",
                     data: JSON.stringify(params)
                 }).then(function (response) {
@@ -1727,7 +1727,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             t2params.BookingId = $scope.bookingId;
             $scope.SyncPromise = $http({
                 method: "post",
-                url: basePath + "ChangeBookingStatusT2",
+                url: aclBasePath + "ChangeBookingStatusT2",
                 datatype: "application/json",
                 data: JSON.stringify(t2params)
             }).then(function (response) {
@@ -1751,7 +1751,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                             params.fullbalance = $scope.invoiceTotalDue;
                             $scope.SyncPromise = $http({
                                 method: "post",
-                                url: basePath + "AuthorizePayment",
+                                url: aclBasePath + "AuthorizePayment",
                                 datatype: "application/json",
                                 data: JSON.stringify(params)
                             }).then(function (response) {
@@ -1821,7 +1821,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             t2params.BookingId = $scope.bookingId;
             $scope.SyncPromise = $http({
                 method: "post",
-                url: basePath + "ChangeBookingStatusT2",
+                url: aclBasePath + "ChangeBookingStatusT2",
                 datatype: "application/json",
                 data: JSON.stringify(t2params)
             }).then(function (response) {
@@ -1840,7 +1840,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
 
                             $scope.SyncPromise = $http({
                                 method: "post",
-                                url: basePath + "ConfirmCFAR",
+                                url: aclBasePath + "ConfirmCFAR",
                                 datatype: "application/json",
                                 data: JSON.stringify(CFARparams)
                             }).then(function (response) {
@@ -1866,7 +1866,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                                             params.fullbalance = $scope.invoiceTotalDue;
                                             $scope.SyncPromise = $http({
                                                 method: "post",
-                                                url: basePath + "AuthorizePayment",
+                                                url: aclBasePath + "AuthorizePayment",
                                                 datatype: "application/json",
                                                 data: JSON.stringify(params)
                                             }).then(function (response) {
@@ -1963,7 +1963,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
 
         $scope.SyncPromise = $http({
             method: "post",
-            url: basePath + "UpdateTentativePaymentStatus",
+            url: aclBasePath + "UpdateTentativePaymentStatus",
             datatype: "application/json",
             data: JSON.stringify(params)
         }).then(function (response) {
@@ -2089,7 +2089,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         console.log("SaveTentativeBooking_params", params);
         $scope.SyncPromise = $http({
             method: "post",
-            url: basePath + "SaveTentativeBooking",
+            url: aclBasePath + "SaveTentativeBooking",
             datatype: "application/json",
             data: JSON.stringify(params)
         }).then(function (response) {
@@ -2249,7 +2249,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             console.log("CFAR_params", params);
             $scope.SyncPromise = $http({
                 method: "post",
-                url: basePath + "GetCFAR",
+                url: aclBasePath + "GetCFAR",
                 datatype: "application/json",
                 data: JSON.stringify(params)
             }).then(function (response) {
@@ -2306,7 +2306,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         thejson = JSON.stringify(params);
         $scope.SyncPromise = $http({
             method: "post",
-            url: basePath + "GetFoliosForEvent",
+            url: aclBasePath + "GetFoliosForEvent",
             datatype: "application/json",
             data: JSON.stringify(params)
         }).then(function (response) {
@@ -2486,7 +2486,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             params.fullbalance = $scope.invoiceTotalDue;
             $scope.SyncPromise = $http({
                 method: "post",
-                url: basePath + "AuthorizePayment",
+                url: aclBasePath + "AuthorizePayment",
                 datatype: "application/json",
                 data: JSON.stringify(params)
             }).then(function (response) {
@@ -2541,7 +2541,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             params.fullbalance = $scope.invoiceTotalDue;
             $scope.SyncPromise = $http({
                 method: "post",
-                url: basePath + "AuthorizePayment",
+                url: aclBasePath + "AuthorizePayment",
                 datatype: "application/json",
                 data: JSON.stringify(params)
             }).then(function (response) {

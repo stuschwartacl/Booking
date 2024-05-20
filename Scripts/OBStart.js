@@ -171,7 +171,6 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         $scope.method = 'GET';
         $scope.url = 'getIP.php';
 
-        // STU - DEV
         $scope.validuser = true;
         if ($scope.validuser) {
             $scope.GetAllShips();
@@ -184,8 +183,6 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             $cookies.put('OBBLastLogin', new Date(), { expires: expiresdate });
         }
 
-
-        // STU - END DEV
 
 
         // $scope.ADID = $scope.loginid;
@@ -421,7 +418,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             datatype: "application/json",
             data: JSON.stringify(params),
 
-            url: basePath + "GetCurrentCruiseForShip"
+            url: aclBasePath + "GetCurrentCruiseForShip"
 
         }).then(function (response) {
             if (response.status == 200) {
