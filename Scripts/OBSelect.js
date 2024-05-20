@@ -19,6 +19,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
 
     var internalbasePath = OnboardBooking_CONFIG.InternalbasePath;
     var basePath = OnboardBooking_CONFIG.basePath;
+    var pscBasePath = OnboardBooking_CONFIG.pscBasePath;
     var referrerComp = OnboardBooking_CONFIG.referrer;
     var testreferrerComp = OnboardBooking_CONFIG.testreferrer;
     var webreferrerComp = OnboardBooking_CONFIG.referrerWEB;
@@ -111,142 +112,229 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                     $scope.bookingId = urlParam('bookingid');
 
                 }
-                $scope.folio1 = urlParam('folio1');
-                $scope.folio2 = urlParam('folio2');
-                if ($scope.folio2 == undefined)
-                    $scope.numfolios = 1;
-                else
-                    $scope.numfolios = 2;
-                $scope.CurrentCruiseNum = urlParam('CurrentCruiseNum');
 
-                //get these values from the list of tentative bookings
-
-                $scope.ShipSel = urlParam('FacilityID');
-
-                if ($scope.ShipSel != undefined) {
-                    $scope.ShipSel = parseInt($scope.ShipSel);
-                    $scope.GetAllCruiseTypes();
-                    $scope.CruiseType = "ALL  ";
-                    $scope.GetShipsForCruiseType();
-                    $scope.t2Booking = true;
-                    $scope.t2BookingInit = true;
-                    $scope.GetDeparturesForShip();
+                // If this is a PSC customer - get PSC Folio and attempt to find/create ACL Folio
+                if (urlParam('CurrentCruiseNum').toLowerCase().startsWith('psc')) {
+                    $scope.FindFolioInPSC($scope.guest1name, 1);
+                    if ($scope.guest2name) {
+                        $scope.FindFolioInPSC($scope.guest2name, 2);
+                    }
                 }
                 else {
-                    $scope.t2Booking = false;
-                    $scope.t2BookingInit = false;
-                }
-                $scope.EventID = urlParam('EventID');
-                if ($scope.EventID != undefined) {
-                    $scope.GetCategoriesForCruise();
-                    $scope.getOptions();
+                    $scope.folio1 = urlParam('folio1');
+                    $scope.folio2 = urlParam('folio2');
 
-                }
-                $scope.selCategory = parseInt(urlParam('CategoryID'));
-                $scope.selRoom = parseInt(urlParam('UnitID'));
+                    if ($scope.folio2 == undefined)
+                        $scope.numfolios = 1;
+                    else
+                        $scope.numfolios = 2;
 
-                $scope.obbuid = urlParam('obbuid');
-                $scope.tentativeBookingID = urlParam('obbuid');
+                    $scope.GatherDetails();
 
-                $scope.CurrShip = $scope.CurrentCruiseNum.substr(0, 3);
-                $scope.GetOBMarketingType();
-      //          $scope.MarketingTypeLookup = [
-      //              { ship: "AMR", mkttyp: "OBAMR" },
-  		  //  { ship: "SPL", mkttyp: "OBAMR" },
-      //              {
-      //                  ship: "CON", mkttyp: "OBCON"
-      //              },
-      //              {
-      //                  ship: "CTI", mkttyp: "OBCT"
-      //              },
-      //              {
-      //                  ship: "HAR", mkttyp: "OBHAR"
-      //              },
-      //              {
-      //                  ship: "IND", mkttyp: "OBInd1"
-      //              },
-      //              {
-      //                  ship: "PRI", mkttyp: "OBPRI"
-      //              },
-      //              {
-      //                  ship: "QMI", mkttyp: "OBQM"
-      //              },
-		    //{
-      //                  ship: "HER", mkttyp: "OBQM"
-      //              },
-      //              {
-      //                  ship: "QOW", mkttyp: "OBQW"
-      //              },
-		    //{
-      //                  ship: "WST", mkttyp: "OBQW"
-      //              },
-      //              {
-      //                  ship: "SNG", mkttyp: "OBSG"
-      //              },
-      //              {
-      //                  ship: "SPI", mkttyp: "OBSP"
-      //              },
-      //              {
-      //                  ship: "STA", mkttyp: "OBST"
-      //              },
-      //              {
-      //                  ship: "JAZ", mkttyp: "OBJAZ"
-      //              },
-      //              {
-      //                  ship: "MEL", mkttyp: "OBMDY"
-      //              },
-      //              {
-      //                  ship: "SYM", mkttyp: "OBSYM"
-      //              }
-      //              ,
-      //              {
-      //                  ship: "SER", mkttyp: "OBSER"
-      //              }
-      //              ,
-      //              {
-      //                  ship: "EAG", mkttyp: "OBEAG"
-      //              }
-      //              ,
-      //              {
-      //                  ship: "GLO", mkttyp: "OBGLO"
-      //              }];
-
-      //          for (i = 0; i < $scope.MarketingTypeLookup.length; i++) {
-      //              if ($scope.MarketingTypeLookup[i].ship == $scope.CurrShip)
-      //                  $scope.mkttyp = $scope.MarketingTypeLookup[i].mkttyp;
-      //          }
-
-
-                //    $scope.redirecting = true;
-                //    window.location.href = referrerComp +"?hash="+hash+"&welcomebook="+welcomebook;
-                //}
-
-
-                if ($scope.guest1name == undefined || ($scope.currbooking == undefined && $scope.currbookingId == undefined) || $scope.folio1 == undefined || $scope.CurrentCruiseNum == undefined)
-                    $scope.invalidbooking = "True";
-                else {
-                    //change to use cruise type criteria as first selection
-                    //$scope.GetAllShips();
-                    $scope.GetAllCruiseTypes();
-                    $scope.GetAgentForBooking();
 
                 }
-                $scope.t2BookingInit = false;
 
-                if($scope.folio1 != undefined && $scope.folio2 == undefined){
-                    $scope.numpassengers = 1;
-                }
-                if($scope.folio1 != undefined && $scope.folio2 != undefined){
-                    $scope.numpassengers = 2;
-                }
-
-                
 
             }
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
     };
+
+    $scope.AddFolio = function (folioInfo) {
+        folioParams = {
+            "firstName": folioInfo['Forename'] || '',
+            "lastName": folioInfo['Surname'] || '',
+            "address": folioInfo['Street'] || '',
+            "city": folioInfo['City'] || '',
+            "state": folioInfo['Province'] || '',
+            "zip": folioInfo['PostalCode'] || '',
+            "phone": folioInfo["Phone1"] || '',
+            "email": folioInfo["Email"] || '',
+            "EnqueryCode": folioInfo["EnquirySource"] || ''
+        }
+        $scope.SyncPromise = $http({
+            method: "post",
+            url: basePath + "AddFolio",
+            datatype: "application/json",
+            data: JSON.stringify(folioParams)
+        }).then(function (response) {
+            Response = response.data;
+            if (Response.AddFolio.Result.Status == "A") {
+                // Success - find folio in ACL
+                $scope.FindFolioInACL(
+                    folioInfo['Forename'] || '',
+                    folioInfo['Surname'] || '',
+                    folioInfo['PostalCode'] || '',
+                    folioInfo["Email"] || '',
+                )
+            }
+        });
+    }
+
+    $scope.FindFolioInPSC = function (guestname, guestNumber) {
+        $scope.guestNumber = guestNumber
+        // Find folio based on first/last name
+        pscParams = {
+            "firstName": guestname.split(' ')[0],
+            "lastName": guestname.split(' ')[1]
+        }
+        $scope.SyncPromise = $http({
+            method: "post",
+            url: pscBasePath + "SearchForFolio",
+            datatype: "application/json",
+            data: JSON.stringify(pscParams)
+        }).then(function (response) {
+            if (response.status == 200) {
+                Response = response.data;
+                if (response.data !== "") {
+                    if (Response.SearchForFolio.Result.Status == "A") {
+                        // Get firstname, lastname, zip and email for accurate ACL lookup
+                        foundPscFolio = Response.SearchForFolio.FolioList[0];
+                        if (foundPscFolio != 'undefined') {
+                            $scope.FindFolioInACL(
+                                foundPscFolio['Forename'] || '',
+                                foundPscFolio['Surname'] || '',
+                                foundPscFolio['PostalCode'].split('-')[0] || '',
+                                foundPscFolio['Email'] || ''
+                            )
+                        }
+                    }
+                    if (Response.SearchForFolio.Result.Status == "U") {
+                        alert("Unuathorized for Stu");
+                    }
+                }
+            }
+            else
+                alert(response.statusText);
+        }, function () {
+            alert("Error Occurred - stu");
+        });
+
+    }
+
+    $scope.FindFolioInACL = function (firstName, lastName, zip, email) {
+        aclParams = {
+            "firstName": firstName,
+            "lastName": lastName,
+            "zip": zip,
+            "email": email
+        };
+        // Perform ACL lookup
+        $scope.SyncPromise = $http({
+            method: "post",
+            url: basePath + "SearchForFolio",
+            datatype: "application/json",
+            data: JSON.stringify(aclParams)
+        }).then(function (aclResponse) {
+            if (aclResponse.data !== "") {
+                Response = aclResponse.data;
+                if (Response.SearchForFolio.Result.Status == "A") {
+                    if (Response.SearchForFolio.FolioList.length == 0) {
+                        // No ACL Folios found for this PSC Customer - Create one
+                        if(email == ''){
+                            $scope.AddFolio(foundPscFolio);
+                        } else {
+                            $scope.FindFolioInACL(firstName, lastName, zip, '')
+                        }
+                    }
+                    else if (Response.SearchForFolio.FolioList.length == 1) {
+                        // One ACL Folio - use it
+                        switch ($scope.guestNumber) {
+                            case 1:
+                                $scope.folio1 = Response.SearchForFolio.FolioList[0];
+                            case 2:
+                                $scope.folio2 = Response.SearchForFolio.FolioList[0];
+                        }
+                        if ($scope.folio2 == undefined)
+                            $scope.numfolios = 1;
+                        else
+                            $scope.numfolios = 2;
+                        // Folios set or created - gather details
+                        $scope.GatherDetails()
+                    }
+                    else {
+                        // Greater than 1 - look for the oldest
+                        earliestModifyDate = Response.SearchForFolio.FolioList.reduce(function (res, obj) {
+                            return obj.ModifyDate < res.ModifyDate ? obj : res;
+                        })
+                        if (earliestModifyDate != 'undefined') {
+                            switch ($scope.guestNumber) {
+                                case 1:
+                                    $scope.folio1 = earliestModifyDate;
+                                case 2:
+                                    $scope.folio2 = earliestModifyDate;
+                            }
+                        }
+                        if ($scope.folio2 == undefined)
+                            $scope.numfolios = 1;
+                        else
+                            $scope.numfolios = 2;
+                        // Folios set or created - gather details
+                        $scope.GatherDetails()
+                    }
+
+
+                }
+            } else if (Response.SearchForFolio.Result.Status == "U") {
+                alert("Unuathorized for Stu 2");
+            }
+        });
+    }
+
+    $scope.GatherDetails = function () {
+        // Populate values after async
+        $scope.CurrentCruiseNum = urlParam('CurrentCruiseNum');
+
+        //get these values from the list of tentative bookings
+
+        $scope.ShipSel = urlParam('FacilityID');
+
+        if ($scope.ShipSel != undefined) {
+            $scope.ShipSel = parseInt($scope.ShipSel);
+            $scope.GetAllCruiseTypes();
+            $scope.CruiseType = "ALL  ";
+            $scope.GetShipsForCruiseType();
+            $scope.t2Booking = true;
+            $scope.t2BookingInit = true;
+            $scope.GetDeparturesForShip();
+        }
+        else {
+            $scope.t2Booking = false;
+            $scope.t2BookingInit = false;
+        }
+        $scope.EventID = urlParam('EventID');
+        if ($scope.EventID != undefined) {
+            $scope.GetCategoriesForCruise();
+            $scope.getOptions();
+
+        }
+        $scope.selCategory = parseInt(urlParam('CategoryID'));
+        $scope.selRoom = parseInt(urlParam('UnitID'));
+
+        $scope.obbuid = urlParam('obbuid');
+        $scope.tentativeBookingID = urlParam('obbuid');
+
+        $scope.CurrShip = $scope.CurrentCruiseNum.substr(0, 3);
+        $scope.GetOBMarketingType();
+        if ($scope.guest1name == undefined || ($scope.currbooking == undefined && $scope.currbookingId == undefined) || $scope.folio1 == undefined || $scope.CurrentCruiseNum == undefined)
+            $scope.invalidbooking = "True";
+        else {
+            //change to use cruise type criteria as first selection
+            //$scope.GetAllShips();
+            $scope.GetAllCruiseTypes();
+            $scope.GetAgentForBooking();
+        }
+
+        $scope.t2BookingInit = false;
+
+        if ($scope.folio1 != undefined && $scope.folio2 == undefined) {
+            $scope.numpassengers = 1;
+        }
+        if ($scope.folio1 != undefined && $scope.folio2 != undefined) {
+            $scope.numpassengers = 2;
+        }
+    }
 
     $scope.GetAllSpecialOccasions = function () {
         $http({
@@ -257,7 +345,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             $scope.SpecialOccasionsList = response.data;
             console.log("$scope.SpecialOccasions", $scope.SpecialOccasionsList);
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
     }
 
@@ -347,7 +435,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             else
                 alert(response.statusText);
         }, function () {
-            alert("Error Occured - GetOnboardBookingAddItems");
+            alert("Error Occurred - GetOnboardBookingAddItems");
         })
     };
 
@@ -395,7 +483,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                 $scope.AirFair.push(item);
             }
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
     };
 
@@ -445,7 +533,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                 }
             }
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
     };
 
@@ -493,7 +581,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                 $scope.PostCruise.push(item);
             }
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
     };
 
@@ -540,7 +628,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                 }
             }
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
     };
 
@@ -555,7 +643,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             if (response.data !== "") {
                 if (Response.GetItemsForCruise.Result.Status == "A") {
                     $scope.MidCruisePackages = Response.GetItemsForCruise.ItemList;
-                    
+
                     console.log("$scope.MidCruisePackages", $scope.MidCruisePackages);
 
                 }
@@ -564,7 +652,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                 }
             }
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
     };
 
@@ -587,7 +675,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             $scope.referrer = Response;
 
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
     }
 
@@ -607,7 +695,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                 }
 
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
     }
 
@@ -642,7 +730,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                 alert(response.statusText);
 
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
 
     }
@@ -675,7 +763,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                 alert(response.statusText);
 
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
 
     }
@@ -715,7 +803,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                     alert(response.statusText);
 
             }, function () {
-                alert("Error Occured");
+                alert("Error Occurred");
             })
         }
 
@@ -749,7 +837,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                 alert(response.statusText);
 
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
 
     }
@@ -830,7 +918,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             else
                 alert(response.statusText);
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
 
     }
@@ -900,7 +988,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
 
 
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
 
     }
@@ -958,7 +1046,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         }
 
             , function () {
-                alert("Error Occured");
+                alert("Error Occurred");
             })
 
     }
@@ -995,7 +1083,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
 
         }, function (response) {
 
-            alert("Error Occured");
+            alert("Error Occurred");
         })
 
 
@@ -1094,8 +1182,8 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             });
         }
         //if there are land packages include them automatically
-       
-        if ($scope.LandPackages !=undefined && $scope.LandPackages.length > 0) {
+
+        if ($scope.LandPackages != undefined && $scope.LandPackages.length > 0) {
             $scope.LandPackages.forEach(lp => {
                 optSelectedItemIds.push({
                     "itemID": lp.ItemId
@@ -1110,12 +1198,12 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         //if there are mid cruise packages include them automatically
 
         if ($scope.MidCruisePackages != undefined && $scope.MidCruisePackages.length > 0) {
-                $scope.MidCruisePackages.forEach(mcp => {
-                    optSelectedItemIds.push({
-                        "itemID": mcp.ItemId
-                    });
+            $scope.MidCruisePackages.forEach(mcp => {
+                optSelectedItemIds.push({
+                    "itemID": mcp.ItemId
                 });
-            }
+            });
+        }
         // params.discountCode = "ONBOARD15";
         params.AddItems = optSelectedItemIds;
         console.log("MakeTentativeBooking_params", params);
@@ -1142,31 +1230,31 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                         $scope.BookingSubmitted = 'True';
                         $scope.completepayment = false;
                         var catName = $scope.Categories.filter(item => item.CategoryId === $scope.selCategory)[0];
-                        $scope.kingshow=true;
-                        $scope.twotwinshow=true;
-                        $scope.stayingsingleshow=true;
-                        if($scope.numpassengers == 1 && 
-                            (catName.Code == "SGB" || catName.Code == "SGLBAL" || 
-                            catName.Code == "SGL" || catName.Code == "SGL BAL" || 
-                            catName.Code == "SG")){
-                                $scope.kingshow=false;
-                                $scope.twotwinshow=false;
-                                $scope.stayingsingleshow=true;
-                                $scope.bedsize = 'Single';
-                                $scope.p1ChangeBedding = true;
-                            }
-                            else{
-                                $scope.kingshow=true;
-                                $scope.twotwinshow=true;
-                                $scope.stayingsingleshow=false;
-                            }
-                        
-                        if($scope.numpassengers > 1){
-                            $scope.kingshow=true;
-                            $scope.twotwinshow=true;
-                            $scope.stayingsingleshow=false;
+                        $scope.kingshow = true;
+                        $scope.twotwinshow = true;
+                        $scope.stayingsingleshow = true;
+                        if ($scope.numpassengers == 1 &&
+                            (catName.Code == "SGB" || catName.Code == "SGLBAL" ||
+                                catName.Code == "SGL" || catName.Code == "SGL BAL" ||
+                                catName.Code == "SG")) {
+                            $scope.kingshow = false;
+                            $scope.twotwinshow = false;
+                            $scope.stayingsingleshow = true;
+                            $scope.bedsize = 'Single';
+                            $scope.p1ChangeBedding = true;
                         }
-                        if($scope.numpassengers == 1){
+                        else {
+                            $scope.kingshow = true;
+                            $scope.twotwinshow = true;
+                            $scope.stayingsingleshow = false;
+                        }
+
+                        if ($scope.numpassengers > 1) {
+                            $scope.kingshow = true;
+                            $scope.twotwinshow = true;
+                            $scope.stayingsingleshow = false;
+                        }
+                        if ($scope.numpassengers == 1) {
                             $scope.soparticipate1 == true;
                         }
 
@@ -1190,13 +1278,13 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                     }
                 }
 
-                
+
             }
             else
                 alert(response.statusText);
 
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
 
     }
@@ -1243,7 +1331,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                 alert(response.statusText);
 
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
 
     }
@@ -1286,16 +1374,16 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                 alert(response.statusText);
 
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
 
     }
 
     $scope.makesplitpay = function () {
         $scope.depositAmount = $scope.mindepositAmount;
-        if($scope.splitPayment == "Yes"){
-            $scope.depositAmount = $scope.mindepositAmount/2;
-            $scope.depositAmount2 = $scope.mindepositAmount/2;
+        if ($scope.splitPayment == "Yes") {
+            $scope.depositAmount = $scope.mindepositAmount / 2;
+            $scope.depositAmount2 = $scope.mindepositAmount / 2;
         }
         document.getElementById("confirm_deposit").setAttribute("aria-invalid", "false");
         document.getElementById("confirm_deposit2").setAttribute("aria-invalid", "false");
@@ -1304,11 +1392,11 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
 
     $scope.autoAdjusted = false;
     $scope.chkAmount = function (flag) {
-        if(flag == "1" && $scope.autoAdjusted == false){
+        if (flag == "1" && $scope.autoAdjusted == false) {
             $scope.depositAmount2 = parseFloat(($scope.mindepositAmount - $scope.depositAmount).toFixed(2));
             $scope.autoAdjusted = true;
         }
-        if(flag == "2" && $scope.autoAdjusted == false){
+        if (flag == "2" && $scope.autoAdjusted == false) {
             $scope.depositAmount = parseFloat(($scope.mindepositAmount - $scope.depositAmount2).toFixed(2));
             $scope.autoAdjusted = true;
         }
@@ -1318,15 +1406,15 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         $scope.maxamountinvalid = false;
         document.getElementById("confirm_deposit").setAttribute("aria-invalid", "false");
         document.getElementById("confirm_deposit2").setAttribute("aria-invalid", "false");
-        if($scope.splitPayment == "Yes"){
+        if ($scope.splitPayment == "Yes") {
             da = da + $scope.depositAmount2;
         }
-        if($scope.mindepositAmount>da){
+        if ($scope.mindepositAmount > da) {
             $scope.amountinvalid = true;
             document.getElementById("confirm_deposit").setAttribute("aria-invalid", "true");
             document.getElementById("confirm_deposit2").setAttribute("aria-invalid", "true");
         }
-        if(da>$scope.invoiceTotalDue){
+        if (da > $scope.invoiceTotalDue) {
             $scope.maxamountinvalid = true;
             document.getElementById("confirm_deposit").setAttribute("aria-invalid", "true");
             document.getElementById("confirm_deposit2").setAttribute("aria-invalid", "true");
@@ -1373,7 +1461,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                 alert(response.statusText);
 
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
 
     }
@@ -1417,14 +1505,14 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             } else {
                 paymentFormUpdate(response.opaqueData);
             }
-            if($scope.splitPayment != "Yes"){
+            if ($scope.splitPayment != "Yes") {
                 $scope.RequestBeddingUpdate();
-                if($scope.specialOccasion == "Yes"){
+                if ($scope.specialOccasion == "Yes") {
                     $scope.RequestUpdateSpecialOccassion();
                 }
-                if($scope.travelfriends == "Yes"){
+                if ($scope.travelfriends == "Yes") {
                     $scope.RequestUpdateTravellingWith();
-                }                                                        
+                }
             }
         } catch (error) {
             console.log(error);
@@ -1448,9 +1536,9 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         // document.getElementById("paymentForm").submit();
     }
     $scope.sendPaymentDataToAnet = function () {
-        $scope.runQ=true;
-        if($scope.splitPayment == "Yes"){
-            $scope.runQ=false;
+        $scope.runQ = true;
+        if ($scope.splitPayment == "Yes") {
+            $scope.runQ = false;
         }
 
         var authData = {};
@@ -1493,13 +1581,13 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
 
     $scope.beddingSubmitted = undefined;
     $scope.RequestBeddingUpdate = function () {
-        if($scope.bedsize != undefined){
+        if ($scope.bedsize != undefined) {
             params = {};
             params.BookingId = $scope.bookingId;
             params.FolioId = $scope.folio1; //selfolio;
             params.bedsize = $scope.bedsize;
 
-            if($scope.beddingSubmitted == undefined){
+            if ($scope.beddingSubmitted == undefined) {
                 $scope.SyncPromise = $http({
                     method: "post",
                     url: basePath + "UpdateBedding",
@@ -1511,39 +1599,38 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                         $scope.beddingSubmitted = true;
                     } else
                         alert(response.statusText);
-    
+
                 }, function () {
-                    alert("Error Occured");
+                    alert("Error Occurred");
                 })
             }
-            
-        }        
+
+        }
     }
 
     $scope.specialOccasionSubmitted = undefined;
     $scope.selectedso = '';
     $scope.RequestUpdateSpecialOccassion = function () {
         params = {};
-        params.BookingId = $scope.bookingId;        
+        params.BookingId = $scope.bookingId;
         params.SpecialOccasions = $scope.selectedso;
         params.otherspecOcc = $scope.otherspecOcc;
         params.specOccDate = $scope.specOccDate;
 
         var specoccFolio = [];
-        if($scope.soparticipate1 != undefined && $scope.soparticipate1 == true){
+        if ($scope.soparticipate1 != undefined && $scope.soparticipate1 == true) {
             specoccFolio.push({
                 "FolioId": $scope.folio1
             });
         }
-        if($scope.soparticipate2 != undefined && $scope.soparticipate2 == true){
+        if ($scope.soparticipate2 != undefined && $scope.soparticipate2 == true) {
             specoccFolio.push({
                 "FolioId": $scope.folio2
             });
         }
         params.FolioList = specoccFolio;
 
-        if($scope.specialOccasionSubmitted == undefined)
-        {
+        if ($scope.specialOccasionSubmitted == undefined) {
             $scope.SyncPromise = $http({
                 method: "post",
                 url: basePath + "UpdateSpecialOccassion",
@@ -1555,9 +1642,9 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                     $scope.specialOccasionSubmitted = true;
                 } else
                     alert(response.statusText);
-    
+
             }, function () {
-                alert("Error Occured");
+                alert("Error Occurred");
             })
         }
     }
@@ -1569,29 +1656,29 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         params.FolioId = $scope.folio1; //selfolio;
 
         var TravelWith = [];
-        if($scope.travelfriendsname1 != undefined && $scope.travelfriendstateroom1 != undefined){
+        if ($scope.travelfriendsname1 != undefined && $scope.travelfriendstateroom1 != undefined) {
             TravelWith.push({
                 "travelfriendnames": $scope.travelfriendsname1,
                 "travelfriendstateroom": $scope.travelfriendstateroom1
             });
         }
-        if($scope.travelfriendsname2 != undefined && $scope.travelfriendstateroom2 != undefined){
+        if ($scope.travelfriendsname2 != undefined && $scope.travelfriendstateroom2 != undefined) {
             TravelWith.push({
                 "travelfriendnames": $scope.travelfriendsname2,
                 "travelfriendstateroom": $scope.travelfriendstateroom2
             });
         }
-        if($scope.travelfriendsname3 != undefined && $scope.travelfriendstateroom3 != undefined){
+        if ($scope.travelfriendsname3 != undefined && $scope.travelfriendstateroom3 != undefined) {
             TravelWith.push({
                 "travelfriendnames": $scope.travelfriendsname3,
                 "travelfriendstateroom": $scope.travelfriendstateroom3
             });
         }
 
-        if(TravelWith.length > 0){
+        if (TravelWith.length > 0) {
             params.TravelWithList = TravelWith;
 
-            if($scope.travelWithSubmitted == undefined){
+            if ($scope.travelWithSubmitted == undefined) {
                 $scope.SyncPromise = $http({
                     method: "post",
                     url: basePath + "UpdateTravellingWith",
@@ -1603,12 +1690,12 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                         $scope.travelWithSubmitted = true;
                     } else
                         alert(response.statusText);
-    
+
                 }, function () {
-                    alert("Error Occured");
+                    alert("Error Occurred");
                 })
             }
-            
+
         }
     }
 
@@ -1618,7 +1705,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         $scope.GRReq = !$scope.GRReq;
         $(".collapse").slideToggle();
 
-        if($scope.GRReq == false)
+        if ($scope.GRReq == false)
             $(".collapseicon").text('+');
         else
             $(".collapseicon").text('-');
@@ -1689,14 +1776,14 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                                     }
                                     else
                                         alert("Error Occurred - No Data returned");
-                                    
+
                                     ProcessPayment2();
                                 }
                                 else
                                     alert(response.statusText);
 
                             }, function () {
-                                alert("Error Occured");
+                                alert("Error Occurred");
                             })
                         }
                         if (Response.ResChangeBookingStatusT2.Result.Status == "U") {
@@ -1724,7 +1811,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                     alert(response.statusText);
 
             }, function () {
-                alert("Error Occured");
+                alert("Error Occurred");
             })
         }
         else {
@@ -1811,7 +1898,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
 
 
                                             }, function () {
-                                                alert("Error Occured");
+                                                alert("Error Occurred");
                                             })
                                         }
                                         if (Response.ConfirmCFAR.Result.Status == "U") {
@@ -1829,7 +1916,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                                     alert(response.statusText);
 
                             }, function () {
-                                alert("Error Occured");
+                                alert("Error Occurred");
                             })
 
 
@@ -1860,7 +1947,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                     alert(response.statusText);
 
             }, function () {
-                alert("Error Occured");
+                alert("Error Occurred");
             })
         }
 
@@ -1899,7 +1986,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                 alert(response.statusText);
 
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
     }
 
@@ -2025,16 +2112,16 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                 alert(response.statusText);
 
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
     }
     $scope.setemailsend = function (status) {
-        $scope.emailOption = "{&quot;RECEIPT_URL&quot;:&quot;" + $scope.receiptPath + "rebuid=" + $scope.bookingId+ "&quot;}";
+        $scope.emailOption = "{&quot;RECEIPT_URL&quot;:&quot;" + $scope.receiptPath + "rebuid=" + $scope.bookingId + "&quot;}";
         console.log("$scope.emailOption", $scope.emailOption);
         $scope.emailsend = status;
     }
     $scope.setemailsendReceipt = function (status) {
-        $scope.emailOption = "{&quot;RECEIPT_URL&quot;:&quot;" + $scope.receiptPath + "rebuid=" + $scope.bookingId+ "&quot;}";
+        $scope.emailOption = "{&quot;RECEIPT_URL&quot;:&quot;" + $scope.receiptPath + "rebuid=" + $scope.bookingId + "&quot;}";
         console.log("$scope.emailOption", $scope.emailOption);
         $scope.emailsendReceipt = status;
     }
@@ -2207,7 +2294,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                 }
 
             }, function () {
-                alert("Error Occured");
+                alert("Error Occurred");
             })
         }
     }
@@ -2241,7 +2328,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
 
 
         }, function () {
-            alert("Error Occured");
+            alert("Error Occurred");
         })
 
     }
@@ -2273,8 +2360,8 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
     }
 
     function ProcessPayment2() {
-        if($scope.splitPayment == "Yes"){
-            $scope.runQ=true;
+        if ($scope.splitPayment == "Yes") {
+            $scope.runQ = true;
             var authData2 = {};
             authData2.clientKey = clientKey;
             authData2.apiLoginID = apiLoginID;
@@ -2292,7 +2379,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             $scope.lastName2 = lastName2;
             cardData2.fullName = firstName2 + " " + lastName2;
             cardData2.amount = document.getElementById("confirm_deposit2").value;
-            
+
             var secureData2 = {};
             secureData2.authData = authData2;
             secureData2.cardData = cardData2;
@@ -2340,14 +2427,14 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             } else {
                 paymentFormUpdate2(response.opaqueData);
             }
-            if($scope.splitPayment == "Yes"){
+            if ($scope.splitPayment == "Yes") {
                 $scope.RequestBeddingUpdate();
-                if($scope.specialOccasion == "Yes"){
+                if ($scope.specialOccasion == "Yes") {
                     $scope.RequestUpdateSpecialOccassion();
                 }
-                if($scope.travelfriends == "Yes"){
+                if ($scope.travelfriends == "Yes") {
                     $scope.RequestUpdateTravellingWith();
-                }                        
+                }
             }
         } catch (error) {
             console.log(error);
@@ -2390,7 +2477,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                 params.folioId = $scope.selfolio2;
             params.amt = $scope.depositAmount2;
             params.eventId = $scope.EventID;
-            
+
             params.zip = $scope.zip2;
             params.firstName = $scope.firstName2;
             params.lastName = $scope.lastName2;
@@ -2430,7 +2517,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                     alert(response.statusText);
 
             }, function () {
-                alert("Error Occured");
+                alert("Error Occurred");
             })
         }
         else {
@@ -2483,7 +2570,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                     alert(response.statusText);
 
             }, function () {
-                alert("Error Occured");
+                alert("Error Occurred");
             })
         }
     }

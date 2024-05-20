@@ -1,9 +1,6 @@
 ﻿var app = angular.module("OnboardBookingApp", ['checklist-model', 'cgBusy', 'ngCookies']);
 
 
-
-
-
 app.directive('ngReallyClick', [function () {
     return {
         restrict: 'A',
@@ -43,11 +40,12 @@ app.directive('ngReallyClick', [function () {
 
     })
 
-app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$timeout', '$q', '$filter', 'OnboardBooking_CONFIG', '$window', '$cookies',  function ($scope, $http, orderBy, $timeout, $q, $filter,OnboardBooking_CONFIG,$window,$cookies) {
+app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$timeout', '$q', '$filter', 'OnboardBooking_CONFIG', '$window', '$cookies', function ($scope, $http, orderBy, $timeout, $q, $filter, OnboardBooking_CONFIG, $window, $cookies) {
 
-     
-    
+
+
     var basePath = OnboardBooking_CONFIG.basePath;
+    var pscBasePath = OnboardBooking_CONFIG.pscBasePath;
     var InternalbasePath = OnboardBooking_CONFIG.InternalbasePath;
     var referrerComp = OnboardBooking_CONFIG.referrer;
     var testreferrerComp = OnboardBooking_CONFIG.testreferrer;
@@ -70,17 +68,16 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
 
     $scope.copyrightdate = new Date().getFullYear();
     $scope.checked = 0;
-   
-    $scope.isIE = function() {
 
-        if (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > 0)
-        {
+    $scope.isIE = function () {
+
+        if (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > 0) {
             $scope.isIE = true;
-           
+
         }
-        else 
+        else
             $scope.isIEreturn = false;
-        
+
 
     }
     function loadScript(url) {
@@ -91,8 +88,8 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         head.appendChild(script);
     }
 
-  
-   function urlParam (name) {
+
+    function urlParam(name) {
         var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
         if (results == null) {
             return undefined;
@@ -101,8 +98,8 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             return decodeURI(results[1]) || 0;
         }
     }
-  
-   
+
+
 
     $scope.sortBy = function (propertyName) {
         $scope.reverse = (propertyName !== null && $scope.propertyName === propertyName)
@@ -174,103 +171,164 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         $scope.method = 'GET';
         $scope.url = 'getIP.php';
 
-        $scope.ADID = $scope.loginid;
-        $http({ method: $scope.method, url: $scope.url }).
-            then(function (response) {
-                $scope.params = {};
-                $scope.status = response.status;
-                $scope.ipAddress = response.data;
-                $scope.currentuser = {};
-                $scope.currentuser.ID = $scope.loginid;
-                $scope.currentuser.PW = $scope.loginpw;
-                $scope.currentuser.Valid = false;
-                $scope.currentuser.ipAddress = $scope.ipAddress;
-                $scope.currentuser.errorcode = 0;
-                $scope.NeedAuthentication = true;
-                $scope.params.groupname = ADGroup;
-                $scope.params.currentuser = $scope.currentuser;
+        // STU - DEV
+        $scope.validuser = true;
+        if ($scope.validuser) {
+            $scope.GetAllShips();
+            $scope.NeedAuthentication = false;
+            //create cookies
+            var now = new Date(),
+                // this will set the expiration to 12 years
+                expiresdate = new Date(now.getFullYear() + 12, now.getMonth(), now.getDate());
+            $cookies.put('OBBID', $scope.loginid, { expires: expiresdate });
+            $cookies.put('OBBLastLogin', new Date(), { expires: expiresdate });
+        }
 
-                $scope.SyncPromise = $http({
-                    method: "post",
-                    //url: basePath + "PIFViewer/Check_Authorization",
-                    url: InternalbasePath + "PIFViewer/Check_AuthorizationAuthentication",
-                    datatype: "json",
-                    //data: JSON.stringify($scope.currentuser)
-                    data: JSON.stringify($scope.params)
-                }).then(function (response) {
-                    var currentuserValidated = response.data;
-                    $scope.validuser = currentuserValidated.Valid;
-                    $scope.errorcode = currentuserValidated.errorcode;
 
-                    if ($scope.validuser) {
-                        $scope.GetAllShips();
-                        $scope.NeedAuthentication = false;
-                        //create cookies
-                        var now = new Date(),
-                            // this will set the expiration to 12 years
-                            expiresdate = new Date(now.getFullYear() + 12, now.getMonth(), now.getDate());
-                        $cookies.put('OBBID', $scope.loginid, { expires: expiresdate });
-                        $cookies.put('OBBLastLogin', new Date(), { expires: expiresdate });
-                    }
-                    else {
-                        $scope.IDtried = true;
-                        $scope.NeedAuthentication = true;
-                    }
-                }, function () {
-                    alert("Error Occured");
-                })
-            }, function (response) {
-                $scope.ipAddress = response.data || 'Request failed';
-                $scope.status = response.status;
-                alert("Error Occured");
-            });
+        // STU - END DEV
+
+
+        // $scope.ADID = $scope.loginid;
+        // $http({ method: $scope.method, url: $scope.url }).
+        //     then(function (response) {
+        //         $scope.params = {};
+        //         $scope.status = response.status;
+        //         $scope.ipAddress = response.data;
+        //         $scope.currentuser = {};
+        //         $scope.currentuser.ID = $scope.loginid;
+        //         $scope.currentuser.PW = $scope.loginpw;
+        //         $scope.currentuser.Valid = false;
+        //         $scope.currentuser.ipAddress = $scope.ipAddress;
+        //         $scope.currentuser.errorcode = 0;
+        //         $scope.NeedAuthentication = true;
+        //         $scope.params.groupname = ADGroup;
+        //         $scope.params.currentuser = $scope.currentuser;
+
+        //         $scope.SyncPromise = $http({
+        //             method: "post",
+        //             //url: basePath + "PIFViewer/Check_Authorization",
+        //             url: InternalbasePath + "PIFViewer/Check_AuthorizationAuthentication",
+        //             datatype: "json",
+        //             //data: JSON.stringify($scope.currentuser)
+        //             data: JSON.stringify($scope.params)
+        //         }).then(function (response) {
+        //             var currentuserValidated = response.data;
+        //             $scope.validuser = currentuserValidated.Valid;
+        //             $scope.errorcode = currentuserValidated.errorcode;
+
+        //             if ($scope.validuser) {
+        //                 $scope.GetAllShips();
+        //                 $scope.NeedAuthentication = false;
+        //                 //create cookies
+        //                 var now = new Date(),
+        //                     // this will set the expiration to 12 years
+        //                     expiresdate = new Date(now.getFullYear() + 12, now.getMonth(), now.getDate());
+        //                 $cookies.put('OBBID', $scope.loginid, { expires: expiresdate });
+        //                 $cookies.put('OBBLastLogin', new Date(), { expires: expiresdate });
+        //             }
+        //             else {
+        //                 $scope.IDtried = true;
+        //                 $scope.NeedAuthentication = true;
+        //             }
+        //         }, function () {
+        //             alert("Error Occured");
+        //         })
+        //     }, function (response) {
+        //         $scope.ipAddress = response.data || 'Request failed';
+        //         $scope.status = response.status;
+        //         alert("Error Occured");
+        //     });
 
 
     }
 
     $scope.GetAllShips = function () {
-           params = {};
-          $scope.SyncPromise = $http({
-          method: "post",
-          datatype: "json",
-          //  data: JSON.stringify(params),
-        
+        params = {};
+        $scope.Ships = [];
+        // ACL Ship Names
+        $scope.SyncPromise = $http({
+            method: "post",
+            datatype: "json",
+            data:{},
             url: basePath + "GetAllShipNames"
-
-          }).then(function (response) {
-              if (response.status == 200) {
-                  Response = response.data;
-                  if (response.data !== "") {
-
-                      if (Response.GetAllShipNames.Result.Status == "A") {
-                          $scope.Ships = Response.GetAllShipNames.FacilityList;
-                         
-
-                      }
-                      if (Response.GetAllShipNames.Result.Status == "U") {
-                          alert("Unuathorized for GetDepartureDatesforShip");
-                      }
-                  }
-              }
-              else
-                  alert(response.statusText);
+        }).then(function (response) {
+            if (response.status == 200) {
+                Response = response.data;
+                if (response.data !== "") {
+                    if (Response.GetAllShipNames.Result.Status == "A") {
+                        //$scope.Ships = Response.GetAllShipNames.FacilityList;
+                        Response.GetAllShipNames.FacilityList.forEach(x => {
+                            $scope.Ships.push(x);
+                        });
+                         // Sort by name
+                         $scope.Ships.sort((a,b) => (a.Name > b.Name) ? 1 : ((b.Name > a.Name) ? -1 : 0));
+                    }
+                    if (Response.GetAllShipNames.Result.Status == "U") {
+                        alert("Unuathorized for GetDepartureDatesforShip");
+                    }
+                }
+            }
+            else
+                alert(response.statusText);
 
         }, function () {
             alert("Error Occured in Get Ships");
-        })
+        });
+        // PSC ships
+        $scope.SyncPromise = $http({
+            method: "post",
+            datatype: "json",
+            data: {},
+            url: pscBasePath + "GetAllShipNames"
+        }).then(function (response) {
+            if (response.status == 200) {
+                Response = response.data;
+                if (response.data !== "") {
+                    if (Response.GetAllShipNames.Result.Status == "A") {
+                        //$scope.Ships = Response.GetAllShipNames.FacilityList;
+                        Response.GetAllShipNames.FacilityList.forEach(x => {
+                            x.Name = $scope.toTitleCase(x.Name);
+                            $scope.Ships.push(x);
+                        });
+                        // Sort by name
+                        $scope.Ships.sort((a,b) => (a.Name > b.Name) ? 1 : ((b.Name > a.Name) ? -1 : 0));
+                    }
+                    if (Response.GetAllShipNames.Result.Status == "U") {
+                        alert("Unuathorized for GetDepartureDatesforShip");
+                    }
+                }
+            }
+            else
+                alert(response.statusText);
+
+        }, function () {
+            alert("Error Occured in Get Ships");
+        });
 
     }
-   
-   
+
+
+    $scope.toTitleCase = function(str) {
+        return str.replace(
+          /\w\S*/g,
+          function(txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+          }
+        );
+      }
+
     $scope.GetAllCurrentPassengers = function () {
         params = {};
         params.ShipCode = $scope.selShipCode;
+        // ACL or PSC?
+        var shipName = $scope.Ships.find(x => x.Code == params.ShipCode).Name;
+        passengersUrl = shipName == 'undefined' || !shipName.toLowerCase().startsWith('pearl') ? basePath : pscBasePath;
         $scope.SyncPromise = $http({
             method: "post",
             datatype: "json",
             data: JSON.stringify(params),
 
-            url: basePath + "GetPassengersOnCurrentCruise"
+            url: passengersUrl + "GetPassengersOnCurrentCruise"
 
         }).then(function (response) {
             if (response.status == 200) {
@@ -281,7 +339,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
                         tempPAXList = Response.GetPassengersOnCurrentCruise.PassengerList;
                         //add placeholder for checkbox
                         angular.forEach(tempPAXList, function (PAX)
-                     //   tempPAXList.forEach(PAX)
+                        //   tempPAXList.forEach(PAX)
                         {
                             PAX.RebookSelected = 0;
                         })
@@ -300,7 +358,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         }, function () {
             alert("Error Occured in get passengers");
         })
-          
+
 
 
     }
@@ -341,9 +399,13 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
         })
 
         if (paxselected.length == 2)
-            window.open(OnboardBookingLink + "/OnboardBooking/OBSelect?CurrentCruiseNum=" + paxselected[0].CruiseCode + "&guest1nm=" + paxselected[0].FullName + "&guest2nm=" + paxselected[1].FullName + "&bookingnum=" + paxselected[0].BookingCode + "&folio1=" + paxselected[0].FolioId + "&folio2=" + paxselected[1].FolioId, "_blank")
+            // STU - DEV
+            window.open(OnboardBookingLink + "/OBSelect.html?CurrentCruiseNum=" + paxselected[0].CruiseCode + "&guest1nm=" + paxselected[0].FullName + "&guest2nm=" + paxselected[1].FullName + "&bookingnum=" + paxselected[0].BookingCode + "&folio1=" + paxselected[0].FolioId + "&folio2=" + paxselected[1].FolioId, "_blank")
+            //window.open(OnboardBookingLink + "/OnboardBooking/OBSelect?CurrentCruiseNum=" + paxselected[0].CruiseCode + "&guest1nm=" + paxselected[0].FullName + "&guest2nm=" + paxselected[1].FullName + "&bookingnum=" + paxselected[0].BookingCode + "&folio1=" + paxselected[0].FolioId + "&folio2=" + paxselected[1].FolioId, "_blank")
         else
-            window.open(OnboardBookingLink + "/OnboardBooking/OBSelect?CurrentCruiseNum=" + paxselected[0].CruiseCode + "&guest1nm=" + paxselected[0].FullName + "&bookingnum=" + paxselected[0].BookingCode + "&folio1=" + paxselected[0].FolioId, "_blank")
+        // STU - DEV
+        window.open(OnboardBookingLink + "/OBSelect.html?CurrentCruiseNum=" + paxselected[0].CruiseCode + "&guest1nm=" + paxselected[0].FullName + "&bookingnum=" + paxselected[0].BookingCode + "&folio1=" + paxselected[0].FolioId, "_blank")
+            //window.open(OnboardBookingLink + "/OnboardBooking/OBSelect?CurrentCruiseNum=" + paxselected[0].CruiseCode + "&guest1nm=" + paxselected[0].FullName + "&bookingnum=" + paxselected[0].BookingCode + "&folio1=" + paxselected[0].FolioId, "_blank")
 
 
     }
@@ -368,7 +430,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
 
                     if (Response.GetCurrentCruiseForShip.Result.Status == "A") {
                         $scope.CruiseNum = Response.GetCurrentCruiseForShip.CruiseCode;
-                        location.href=OnboardBookingLink + "/OnboardBooking/OBList?CruiseNum=" + $scope.CruiseNum;
+                        location.href = OnboardBookingLink + "/OnboardBooking/OBList?CruiseNum=" + $scope.CruiseNum;
 
                     }
                     if (Response.GetCurrentCruiseForShip.Result.Status == "U") {
@@ -383,7 +445,7 @@ app.controller("OnboardBookingCtrl", ['$scope', '$http', 'orderByFilter', '$time
             alert("Error Occured");
         })
 
-      
+
 
     }
 }])  
